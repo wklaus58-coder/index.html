@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIKU-BelegProfi</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F2ED;--sur:#FFF;--bor:rgba(0,0,0,0.09);--bor2:rgba(0,0,0,0.15);--tx:#1A1916;--tx2:#6B6860;--tx3:#A09D97;--bl:#1B4FD8;--bl2:#EBF0FF;--gn:#0F6E3A;--gn2:#E6F5EE;--am:#92520A;--am2:#FEF3E2;--rd:#B91C1C;--rd2:#FEE2E2;--co:#993C1D;--co2:#FAECE7;--pu:#5B3DB5;--pu2:#EEEDFE;--r:10px;--rl:16px;--sh:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);--shm:0 4px 16px rgba(0,0,0,0.10);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;line-height:1.5;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:230px;background:var(--sur);border-right:1px solid var(--bor);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;}
+.main{margin-left:230px;flex:1;display:flex;flex-direction:column;}
+.topbar{background:var(--sur);border-bottom:1px solid var(--bor);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.content{padding:28px;}
+.logo{padding:22px 20px 18px;border-bottom:1px solid var(--bor);}
+.logo-main{font-size:17px;font-weight:600;letter-spacing:-0.3px;}
+.logo-main span{color:var(--bl);}
+.logo-sub{font-size:11px;color:var(--tx3);margin-top:2px;}
+.nav{padding:14px 10px;flex:1;display:flex;flex-direction:column;gap:2px;}
+.nav-lbl{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:0.7px;padding:10px 10px 4px;}
+.nb{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);cursor:pointer;font-size:13px;color:var(--tx2);border:none;background:none;width:100%;text-align:left;transition:all 0.12s;font-family:'DM Sans',sans-serif;}
+.nb:hover{background:var(--bg);color:var(--tx);}
+.nb.active{background:var(--bl2);color:var(--bl);font-weight:500;}
+.ni{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.sfoot{padding:14px 10px;border-top:1px solid var(--bor);}
+.ubox{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);background:var(--bg);}
+.uav{width:32px;height:32px;border-radius:50%;background:var(--bl2);color:var(--bl);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.uname{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.urole{font-size:11px;color:var(--tx3);}
+.ptitle{font-size:16px;font-weight:600;}
+.tright{display:flex;align-items:center;gap:10px;}
+.kib{display:flex;align-items:center;gap:6px;font-size:12px;padding:5px 12px;border-radius:99px;}
+.ki-on{background:var(--gn2);color:var(--gn);}
+.ki-off{background:var(--am2);color:var(--am);cursor:pointer;}
+.kdot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);border:1px solid var(--bor2);background:var(--sur);color:var(--tx);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.12s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.btn:hover{background:var(--bg);}
+.btn-bl{background:var(--bl);border-color:var(--bl);color:white;}
+.btn-bl:hover{background:#1640B0;}
+.btn-gn{background:var(--gn);border-color:var(--gn);color:white;}
+.btn-gn:hover{background:#0a5a2f;}
+.btn-sm{padding:5px 12px;font-size:12px;}
+.btn-lg{padding:12px 24px;font-size:15px;justify-content:center;}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--tx3);padding:4px 7px;border-radius:6px;font-size:13px;}
+.del-btn:hover{background:var(--rd2);color:var(--rd);}
+.view{display:none;}
+.view.active{display:block;}
+.stitle{font-size:21px;font-weight:600;letter-spacing:-0.3px;margin-bottom:4px;}
+.ssub{font-size:13px;color:var(--tx2);margin-bottom:24px;}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:24px;}
+.stat{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);padding:18px 20px;box-shadow:var(--sh);}
+.slbl{font-size:11px;color:var(--tx3);font-weight:500;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
+.sval{font-size:22px;font-weight:600;letter-spacing:-0.5px;}
+.ssub2{font-size:11px;color:var(--tx3);margin-top:3px;}
+.stat.bl{background:var(--bl);border-color:var(--bl);}
+.stat.bl .slbl,.stat.bl .sval,.stat.bl .ssub2{color:white;}
+.uz{border:2px dashed var(--bor2);border-radius:var(--rl);padding:32px 24px;text-align:center;cursor:pointer;transition:all 0.18s;background:var(--sur);margin-bottom:20px;}
+.uz:hover,.uz.drag{border-color:var(--bl);background:var(--bl2);}
+.uemoji{font-size:36px;margin-bottom:10px;}
+.utitle{font-size:16px;font-weight:600;margin-bottom:5px;}
+.usub{font-size:13px;color:var(--tx2);line-height:1.6;}
+.utags{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:12px;}
+input[type=file]{display:none;}
+.proc{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--bl2);border:1px solid rgba(27,79,216,0.18);border-radius:var(--r);margin-bottom:16px;font-size:13px;color:var(--bl);}
+.spin{width:16px;height:16px;border:2px solid rgba(27,79,216,0.2);border-top-color:var(--bl);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.alert{padding:12px 16px;border-radius:var(--r);font-size:13px;margin-bottom:16px;display:flex;gap:8px;align-items:flex-start;line-height:1.5;}
+.a-gn{background:var(--gn2);color:var(--gn);border:1px solid rgba(15,110,58,0.15);}
+.a-am{background:var(--am2);color:var(--am);border:1px solid rgba(146,82,10,0.15);}
+.a-rd{background:var(--rd2);color:var(--rd);border:1px solid rgba(185,28,28,0.15);}
+.tc{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);box-shadow:var(--sh);overflow:hidden;margin-bottom:20px;}
+.thead2{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bor);gap:10px;flex-wrap:wrap;}
+.ttitle{font-size:14px;font-weight:600;}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{padding:9px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:0.4px;background:var(--bg);border-bottom:1px solid var(--bor);white-space:nowrap;}
+th.sort{cursor:pointer;user-select:none;}
+th.sort:hover{background:#E8E4DB;color:var(--tx);}
+td{padding:11px 14px;border-bottom:1px solid var(--bor);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--bg);}
+.tr-total td{font-weight:600;background:#F0EDE6;}
+.mono{font-family:'DM Mono',monospace;font-size:12px;}
+.muted{color:var(--tx2);font-size:12px;}
+.bold{font-weight:600;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:500;white-space:nowrap;}
+.b-bl{background:var(--bl2);color:var(--bl);}
+.b-gn{background:var(--gn2);color:var(--gn);}
+.b-am{background:var(--am2);color:var(--am);}
+.b-co{background:var(--co2);color:var(--co);}
+.b-pu{background:var(--pu2);color:var(--pu);}
+.b-gr{background:#EDEAE3;color:var(--tx2);}
+.tabs{display:flex;background:#EDEAE3;border-radius:var(--r);padding:3px;gap:2px;}
+.tab{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;color:var(--tx2);border:none;background:none;transition:all 0.12s;font-family:'DM Sans',sans-serif;}
+.tab.active{background:var(--sur);color:var(--tx);box-shadow:var(--sh);}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fgp{display:flex;flex-direction:column;gap:5px;}
+.fgp.full{grid-column:1/-1;}
+.flbl{font-size:12px;font-weight:500;color:var(--tx2);}
+.fi{padding:9px 12px;border-radius:var(--r);border:1px solid var(--bor2);background:var(--sur);color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;transition:border-color 0.12s;width:100%;}
+.fi:focus{outline:none;border-color:var(--bl);box-shadow:0 0 0 3px rgba(27,79,216,0.08);}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.18s;}
+.ov.open{opacity:1;pointer-events:all;}
+.modal{background:var(--sur);border-radius:var(--rl);padding:26px;width:100%;max-width:520px;box-shadow:var(--shm);transform:scale(0.97);transition:transform 0.18s;}
+.ov.open .modal{transform:scale(1);}
+.mt{font-size:17px;font-weight:600;margin-bottom:20px;}
+.mf{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--bor);}
+.setup{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+.scard{background:var(--sur);border-radius:20px;padding:36px;max-width:500px;width:100%;box-shadow:var(--shm);}
+.slbl2{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+.snum{width:20px;height:20px;border-radius:50%;background:var(--bl);color:white;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.aguide{background:var(--bg);border-radius:var(--r);padding:14px 16px;font-size:12px;color:var(--tx2);line-height:1.9;margin-top:8px;}
+.aguide a{color:var(--bl);text-decoration:none;font-weight:500;}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:24px;}
+.mc{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);padding:18px;cursor:pointer;transition:all 0.15s;box-shadow:var(--sh);}
+.mc:hover{border-color:var(--bl);box-shadow:var(--shm);}
+.mav{width:42px;height:42px;border-radius:10px;background:var(--bl2);color:var(--bl);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.mname{font-size:14px;font-weight:600;margin-bottom:3px;}
+.minfo{font-size:12px;color:var(--tx2);}
+.mstats{display:flex;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--bor);}
+.mstat{font-size:11px;color:var(--tx3);}
+.mstat strong{color:var(--tx);font-weight:600;display:block;font-size:15px;}
+.egrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+.ec{background:var(--sur);border:1px solid var(--bor);border-radius:var(--rl);padding:20px;cursor:pointer;transition:all 0.15s;box-shadow:var(--sh);}
+.ec:hover{border-color:var(--bl);box-shadow:var(--shm);}
+.ec-t{font-size:15px;font-weight:600;margin-bottom:4px;}
+.ec-s{font-size:12px;color:var(--tx2);margin-bottom:14px;line-height:1.5;}
+.empty{text-align:center;padding:48px 24px;color:var(--tx3);}
+.ei{font-size:40px;margin-bottom:12px;}
+.et{font-size:15px;font-weight:500;color:var(--tx2);margin-bottom:6px;}
+.es{font-size:13px;}
+/* PRINT */
+@media print{
+  .sidebar,.topbar,.uz,.tabs,.btn,.del-btn,.proc,.alert,.nb,.setup,.ov,.no-print{display:none!important;}
+  .main{margin-left:0!important;}
+  .content{padding:10px!important;}
+  .tc{box-shadow:none!important;border:1px solid #ccc!important;}
+  .view{display:block!important;}
+  .view:not(.active){display:none!important;}
+  body{background:white!important;}
+  .ph{display:block!important;}
+}
+.ph{display:none;text-align:center;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #ccc;}
+.ph h2{font-size:18px;font-weight:600;}
+.ph p{font-size:12px;color:#666;margin-top:4px;}
+
+@media(max-width:768px){
+  .sidebar{display:none!important;}
+  .main{margin-left:0!important;}
+  .topbar{padding:0 12px;height:auto;min-height:52px;flex-wrap:wrap;gap:6px;padding-top:8px;padding-bottom:8px;}
+  .topbar-right{flex-wrap:wrap;gap:6px;}
+  .content{padding:12px;padding-bottom:85px!important;}
+  .stats{grid-template-columns:1fr 1fr;}
+  .stat-value{font-size:18px;}
+  .form-grid{grid-template-columns:1fr!important;}
+  .form-group.full{grid-column:1!important;}
+  .export-grid{grid-template-columns:1fr!important;}
+  .setup-screen{padding:10px;align-items:flex-start;padding-top:16px;}
+  .setup-card{padding:20px 16px;border-radius:14px;max-height:95vh;overflow-y:auto;}
+  .form-input{font-size:16px!important;padding:11px 12px!important;}
+  .btn-lg{padding:14px 24px!important;font-size:16px!important;}
+  .mob-nav{display:flex!important;}
+}
+.mob-nav{display:none;background:var(--surface);border-top:1px solid var(--border);padding:6px 4px;position:fixed;bottom:0;left:0;right:0;z-index:300;justify-content:space-around;box-shadow:0 -2px 8px rgba(0,0,0,0.08);}
+.mob-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 8px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:10px;color:var(--text2);font-family:'DM Sans',sans-serif;}
+.mob-btn.active{color:var(--blue);background:var(--blue2);}
+.mob-btn span:first-child{font-size:22px;}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-main">MIKU-<span>BelegProfi</span></div>
+    <div class="logo-sub">Buchhaltung leicht gemacht</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-lbl">Übersicht</div>
+    <button class="nb active" onclick="goTo('dashboard',this)"><span class="ni">📊</span> Dashboard</button>
+    <div class="nav-lbl">Meine Belege</div>
+    <button class="nb" onclick="goTo('eingang',this)"><span class="ni">📥</span> Eingangsrechnungen</button>
+    <button class="nb" onclick="goTo('ausgang',this)"><span class="ni">📤</span> Ausgangsrechnungen</button>
+    <button class="nb" onclick="goTo('bar',this)"><span class="ni">🧾</span> Barbelege & Quittungen</button>
+    <div class="nav-lbl">Verwaltung</div>
+    <button class="nb" onclick="goTo('mandanten',this)"><span class="ni">👤</span> Mandanten</button>
+    <button class="nb" onclick="goTo('export',this)"><span class="ni">📁</span> Export für Steuerberater</button>
+    <div class="nav-lbl">Einstellungen</div>
+    <button class="nb" onclick="openSet()"><span class="ni">⚙️</span> Einstellungen</button>
+  </nav>
+  <div class="sfoot">
+    <div class="ubox">
+      <div class="uav" id="uAv">?</div>
+      <div><div class="uname" id="uName">Nicht eingerichtet</div><div class="urole" id="uRole">Bitte einrichten</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="ptitle" id="pgTitle">Dashboard</div>
+    <div class="tright">
+      <div class="kib ki-on" id="kiOn" style="display:none"><div class="kdot"></div> KI aktiv ✓</div>
+      <div class="kib ki-off" id="kiOff" onclick="openSet()"><div class="kdot"></div> Kein API-Key — hier klicken</div>
+      <select class="fi" id="mandSel" style="width:170px;font-size:12px" onchange="rDash()">
+        <option value="">Alle Mandanten</option>
+      </select>
+      <button class="btn btn-bl btn-sm" onclick="goTo('eingang')">+ Beleg hochladen</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="proc" id="procBar" style="display:none"><div class="spin"></div><span id="procTxt">KI liest Rechnung aus...</span></div>
+    <div class="alert" id="alertBox" style="display:none"><span id="alertTxt"></span></div>
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="v-dashboard">
+      <div class="stitle">Guten Tag! 👋</div>
+      <div class="ssub">Hier siehst du alle deine Belege auf einen Blick.</div>
+      <div class="stats">
+        <div class="stat bl"><div class="slbl">Belege insgesamt</div><div class="sval" id="s-tot">0</div><div class="ssub2">Eingang + Ausgang + Bar</div></div>
+        <div class="stat"><div class="slbl">Eingang Netto</div><div class="sval" id="s-en">0,00 €</div><div class="ssub2">Vorsteuer: <span id="s-vs">0,00 €</span></div></div>
+        <div class="stat"><div class="slbl">Ausgang Netto</div><div class="sval" id="s-an">0,00 €</div><div class="ssub2">MwSt: <span id="s-am">0,00 €</span></div></div>
+        <div class="stat"><div class="slbl">Auslandsrechnungen</div><div class="sval" id="s-ausl">0</div><div class="ssub2">EU + Drittland</div></div>
+      </div>
+      <div class="tc">
+        <div class="thead2">
+          <div class="ttitle">Letzte Belege</div>
+          <div class="tabs">
+            <button class="tab active" onclick="dTab('alle',this)">Alle</button>
+            <button class="tab" onclick="dTab('eingang',this)">Eingang</button>
+            <button class="tab" onclick="dTab('ausgang',this)">Ausgang</button>
+            <button class="tab" onclick="dTab('bar',this)">Bar</button>
+          </div>
+        </div>
+        <div class="tw"><table><thead><tr><th>Datum</th><th>Name</th><th>Beschreibung</th><th>Art</th><th>Netto</th><th>MwSt</th><th>Brutto</th><th>Kategorie</th></tr></thead><tbody id="dTb"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- EINGANG -->
+    <div class="view" id="v-eingang">
+      <div class="stitle">📥 Eingangsrechnungen</div>
+      <div class="ssub">Rechnungen die du bezahlt hast — von Lieferanten, Händlern, Online-Shops.</div>
+      <div class="uz" id="uzE" onclick="document.getElementById('fiE').click()">
+        <div class="uemoji">📄</div>
+        <div class="utitle">Rechnung hier ablegen oder klicken zum Auswählen</div>
+        <div class="usub">PDF, Foto (JPG/PNG) — einzeln, mehrere oder ganzen Ordner reinziehen!</div>
+        <div class="utags">
+          <span class="badge b-bl">🇩🇪 Inland</span>
+          <span class="badge b-am">🇪🇺 EU-Ausland</span>
+          <span class="badge b-co">🌍 Drittland (China, USA...)</span>
+          <span class="badge b-gr">wird automatisch erkannt</span>
+        </div>
+      </div>
+      <input type="file" id="fiE" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="upload(event,'ein')">
+      <div class="tc">
+        <div class="ph"><h2>MIKU-BelegProfi — Eingangsrechnungen</h2><p>Gedruckt am: <span id="pdE"></span></p></div>
+        <div class="thead2 no-print">
+          <div class="ttitle">Alle Eingangsrechnungen</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div class="tabs">
+              <button class="tab active" onclick="eTab('alle',this)">Alle</button>
+              <button class="tab" onclick="eTab('inland',this)">🇩🇪 Inland</button>
+              <button class="tab" onclick="eTab('eu',this)">🇪🇺 EU</button>
+              <button class="tab" onclick="eTab('drittland',this)">🌍 Drittland</button>
+            </div>
+            <button class="btn btn-sm" onclick="openFrm('ein')">+ Manuell</button>
+            <button class="btn btn-sm" onclick="druck('pdE')">🖨 Drucken</button>
+          </div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr id="eTh"></tr></thead>
+          <tbody id="eTb"></tbody>
+          <tfoot id="eFt"></tfoot>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- AUSGANG -->
+    <div class="view" id="v-ausgang">
+      <div class="stitle">📤 Ausgangsrechnungen</div>
+      <div class="ssub">Rechnungen die du an deine Kunden geschrieben hast.</div>
+      <div class="uz" id="uzA" onclick="document.getElementById('fiA').click()">
+        <div class="uemoji">📤</div>
+        <div class="utitle">Ausgangsrechnung hochladen oder Ordner reinziehen</div>
+        <div class="usub">PDF oder Foto der Rechnung — einzeln oder ganzen Ordner</div>
+      </div>
+      <input type="file" id="fiA" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="upload(event,'aus')">
+      <div class="tc">
+        <div class="ph"><h2>MIKU-BelegProfi — Ausgangsrechnungen</h2><p>Gedruckt am: <span id="pdA"></span></p></div>
+        <div class="thead2 no-print">
+          <div class="ttitle">Alle Ausgangsrechnungen</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-sm" onclick="openFrm('aus')">+ Manuell</button>
+            <button class="btn btn-sm" onclick="druck('pdA')">🖨 Drucken</button>
+          </div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr id="aTh"></tr></thead>
+          <tbody id="aTb"></tbody>
+          <tfoot id="aFt"></tfoot>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- BAR -->
+    <div class="view" id="v-bar">
+      <div class="stitle">🧾 Barbelege & Quittungen</div>
+      <div class="ssub">Kassenbons, Tankquittungen — einfach fotografieren und hochladen.</div>
+      <div class="uz" id="uzB" onclick="document.getElementById('fiB').click()">
+        <div class="uemoji">📸</div>
+        <div class="utitle">Kassenbon fotografieren oder hochladen</div>
+        <div class="usub">Foto vom Bon machen und hier ablegen — KI liest Betrag automatisch aus</div>
+      </div>
+      <input type="file" id="fiB" accept=".pdf,.jpg,.jpeg,.png" multiple onchange="upload(event,'bar')">
+      <div class="tc">
+        <div class="ph"><h2>MIKU-BelegProfi — Barbelege</h2><p>Gedruckt am: <span id="pdB"></span></p></div>
+        <div class="thead2 no-print">
+          <div class="ttitle">Alle Barbelege</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-sm" onclick="openFrm('bar')">+ Manuell</button>
+            <button class="btn btn-sm" onclick="druck('pdB')">🖨 Drucken</button>
+          </div>
+        </div>
+        <div class="tw"><table>
+          <thead><tr id="bTh"></tr></thead>
+          <tbody id="bTb"></tbody>
+          <tfoot id="bFt"></tfoot>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- MANDANTEN -->
+    <div class="view" id="v-mandanten">
+      <div class="stitle">👤 Mandanten</div>
+      <div class="ssub">Handwerker und Kunden verwalten.</div>
+      <div style="margin-bottom:18px;"><button class="btn btn-bl" onclick="openMnd()">+ Neuen Mandanten anlegen</button></div>
+      <div class="mgrid" id="mGrid"></div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="view" id="v-export">
+      <div class="stitle">📁 Export für den Steuerberater</div>
+      <div class="ssub">Alle Belege als Excel-Datei herunterladen und an den Steuerberater schicken.</div>
+      <div class="egrid">
+        <div class="ec" onclick="doExp('alle')"><div class="ec-t">📋 Alle Belege</div><div class="ec-s">Eingang + Ausgang + Bar in einer Datei</div><span class="badge b-gn">⬇ Herunterladen</span></div>
+        <div class="ec" onclick="doExp('ein')"><div class="ec-t">📥 Nur Eingangsrechnungen</div><div class="ec-s">Sortiert nach Inland, EU, Drittland</div><span class="badge b-bl">⬇ Herunterladen</span></div>
+        <div class="ec" onclick="doExp('aus')"><div class="ec-t">📤 Nur Ausgangsrechnungen</div><div class="ec-s">Alle Rechnungen an Kunden</div><span class="badge b-am">⬇ Herunterladen</span></div>
+        <div class="ec" onclick="doExp('ausl')"><div class="ec-t">🌍 Nur Auslandsrechnungen</div><div class="ec-s">EU + Drittland mit Steuerhinweisen</div><span class="badge b-co">⬇ Herunterladen</span></div>
+      </div>
+      <div class="tc">
+        <div class="thead2"><div class="ttitle">Vorschau — alle Belege</div></div>
+        <div class="tw"><table><thead><tr><th>Datum</th><th>Art</th><th>Name</th><th>Netto</th><th>MwSt%</th><th>Brutto</th><th>Herkunft</th><th>Kategorie</th><th>Hinweis</th></tr></thead><tbody id="expTb"></tbody></table></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- SETUP -->
+<div class="setup" id="setupScr">
+  <div class="scard">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:40px;margin-bottom:10px;">👋</div>
+      <div style="font-size:22px;font-weight:600;margin-bottom:5px;">Willkommen bei MIKU-BelegProfi!</div>
+      <div style="font-size:13px;color:var(--tx2);">Einmalige Einrichtung — danach einfach loslegen</div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="slbl2"><div class="snum">1</div> Dein Name</div>
+      <input class="fi" id="sName" placeholder="z.B. Mustermann GmbH">
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="slbl2"><div class="snum">2</div> Beruf oder Firma</div>
+      <input class="fi" id="sBeruf" placeholder="z.B. Elektriker · Mustermann GmbH">
+    </div>
+    <div style="margin-bottom:8px;">
+      <div class="slbl2"><div class="snum">3</div> Claude API-Key (für automatisches Auslesen)</div>
+      <div style="display:flex;gap:8px;">
+        <input class="fi" id="sKey" placeholder="..." type="password" style="flex:1;font-family:'DM Mono',monospace;font-size:12px;">
+        <button class="btn btn-sm" onclick="tKey('sKey')">Zeigen</button>
+      </div>
+      <div class="aguide">
+        <strong>So bekommst du den Key:</strong><br>
+        1. <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> öffnen &amp; einloggen<br>
+        2. Links unten auf <strong>"API keys"</strong> klicken<br>
+        3. Auf <strong>"Create Key"</strong> klicken → Name eingeben → bestätigen<br>
+        4. Key kopieren und hier einfügen<br>
+        <span style="color:var(--tx3);font-size:11px;">Kosten: ca. 0,01–0,03€ pro Rechnung</span>
+      </div>
+    </div>
+    <button class="btn btn-bl btn-lg" style="width:100%;margin-top:16px;" onclick="saveSetup()">Einrichtung abschließen →</button>
+    <div style="text-align:center;margin-top:12px;">
+      <span style="font-size:12px;color:var(--tx3);cursor:pointer;text-decoration:underline;" onclick="skipSetup()">Ohne API-Key starten — ich trage alles manuell ein</span>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EINGANG -->
+<div class="ov" id="mEin" onclick="closeOv('mEin',event)">
+  <div class="modal">
+    <div class="mt">📥 Eingangsrechnung manuell eintragen</div>
+    <div class="fg">
+      <div class="fgp"><label class="flbl">Datum</label><input class="fi" id="eD" placeholder="TT.MM.JJJJ"></div>
+      <div class="fgp"><label class="flbl">Lieferant</label><input class="fi" id="eL" placeholder="Firmenname"></div>
+      <div class="fgp full"><label class="flbl">Was wurde geliefert?</label><input class="fi" id="eDsc" placeholder="z.B. Schrauben, Werkzeug..."></div>
+      <div class="fgp"><label class="flbl">Netto (€)</label><input class="fi" id="eN" type="number" step="0.01" placeholder="0.00" oninput="calcB('e')"></div>
+      <div class="fgp"><label class="flbl">Mehrwertsteuer</label><select class="fi" id="eMw" onchange="calcB('e')"><option value="19">19% (normal)</option><option value="7">7% (ermäßigt)</option><option value="0">0% (befreit)</option></select></div>
+      <div class="fgp"><label class="flbl">Brutto (€)</label><input class="fi" id="eBr" type="number" step="0.01" placeholder="0.00"></div>
+      <div class="fgp"><label class="flbl">Woher kommt die Rechnung?</label><select class="fi" id="eHk"><option value="inland">🇩🇪 Deutschland</option><option value="eu">🇪🇺 EU-Ausland</option><option value="drittland">🌍 Drittland (China, USA...)</option></select></div>
+      <div class="fgp"><label class="flbl">Kategorie</label><select class="fi" id="eKt"><option>Material & Waren</option><option>Werkzeug & Maschinen</option><option>Fahrzeug & Transport</option><option>Büro & Verwaltung</option><option>Sonstiges</option></select></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeOv('mEin')">Abbrechen</button><button class="btn btn-bl" onclick="saveFrm('ein')">Eintragen</button></div>
+  </div>
+</div>
+
+<!-- MODAL AUSGANG -->
+<div class="ov" id="mAus" onclick="closeOv('mAus',event)">
+  <div class="modal">
+    <div class="mt">📤 Ausgangsrechnung manuell eintragen</div>
+    <div class="fg">
+      <div class="fgp"><label class="flbl">Datum</label><input class="fi" id="aD" placeholder="TT.MM.JJJJ"></div>
+      <div class="fgp"><label class="flbl">Kunde</label><input class="fi" id="aK" placeholder="Kundenname"></div>
+      <div class="fgp full"><label class="flbl">Beschreibung der Leistung</label><input class="fi" id="aDsc" placeholder="z.B. Elektroinstallation Büro"></div>
+      <div class="fgp"><label class="flbl">Rechnungsnummer</label><input class="fi" id="aR" placeholder="RE-2025-001"></div>
+      <div class="fgp"><label class="flbl">Netto (€)</label><input class="fi" id="aN" type="number" step="0.01" placeholder="0.00" oninput="calcB('a')"></div>
+      <div class="fgp"><label class="flbl">Mehrwertsteuer</label><select class="fi" id="aMw" onchange="calcB('a')"><option value="19">19%</option><option value="7">7%</option><option value="0">0%</option></select></div>
+      <div class="fgp"><label class="flbl">Brutto (€)</label><input class="fi" id="aBr" type="number" step="0.01" placeholder="0.00"></div>
+      <div class="fgp"><label class="flbl">Bezahlt?</label><select class="fi" id="aSt"><option value="offen">Noch offen</option><option value="bezahlt">Bezahlt ✓</option></select></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeOv('mAus')">Abbrechen</button><button class="btn btn-bl" onclick="saveFrm('aus')">Eintragen</button></div>
+  </div>
+</div>
+
+<!-- MODAL BAR -->
+<div class="ov" id="mBar" onclick="closeOv('mBar',event)">
+  <div class="modal">
+    <div class="mt">🧾 Barbeleg manuell eintragen</div>
+    <div class="fg">
+      <div class="fgp"><label class="flbl">Datum</label><input class="fi" id="bD" placeholder="TT.MM.JJJJ"></div>
+      <div class="fgp"><label class="flbl">Händler / Geschäft</label><input class="fi" id="bH" placeholder="z.B. OBI, Tankstelle..."></div>
+      <div class="fgp full"><label class="flbl">Was wurde gekauft?</label><input class="fi" id="bDsc" placeholder="z.B. Kabelbinder, Kaffee..."></div>
+      <div class="fgp"><label class="flbl">Mehrwertsteuer</label><select class="fi" id="bMw"><option value="19">19%</option><option value="7">7%</option><option value="0">0%</option></select></div>
+      <div class="fgp"><label class="flbl">Betrag (€)</label><input class="fi" id="bBr" type="number" step="0.01" placeholder="0.00"></div>
+      <div class="fgp"><label class="flbl">Kategorie</label><select class="fi" id="bKt"><option>Material & Waren</option><option>Werkzeug & Maschinen</option><option>Fahrzeug & Transport</option><option>Büro & Verwaltung</option><option>Verpflegung</option><option>Sonstiges</option></select></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeOv('mBar')">Abbrechen</button><button class="btn btn-bl" onclick="saveFrm('bar')">Eintragen</button></div>
+  </div>
+</div>
+
+<!-- MODAL MANDANT -->
+<div class="ov" id="mMnd" onclick="closeOv('mMnd',event)">
+  <div class="modal">
+    <div class="mt">👤 Neuen Mandanten anlegen</div>
+    <div class="fg">
+      <div class="fgp"><label class="flbl">Name</label><input class="fi" id="mnN" placeholder="Mustermann GmbH"></div>
+      <div class="fgp"><label class="flbl">Beruf / Firma</label><input class="fi" id="mnB" placeholder="Elektriker"></div>
+      <div class="fgp"><label class="flbl">E-Mail</label><input class="fi" id="mnE" placeholder="name@firma.de"></div>
+      <div class="fgp"><label class="flbl">Telefon</label><input class="fi" id="mnT" placeholder="+49 ..."></div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeOv('mMnd')">Abbrechen</button><button class="btn btn-bl" onclick="saveMnd()">Anlegen</button></div>
+  </div>
+</div>
+
+<!-- MODAL EINSTELLUNGEN -->
+<div class="ov" id="mSet" onclick="closeOv('mSet',event)">
+  <div class="modal">
+    <div class="mt">⚙️ Einstellungen</div>
+    <div class="fg">
+      <div class="fgp"><label class="flbl">Name</label><input class="fi" id="stN" placeholder="Dein Name"></div>
+      <div class="fgp"><label class="flbl">Beruf / Firma</label><input class="fi" id="stB" placeholder="Beruf oder Firma"></div>
+      <div class="fgp full">
+        <label class="flbl">Claude API-Key</label>
+        <div style="display:flex;gap:8px;">
+          <input class="fi" id="stK" placeholder="..." type="password" style="flex:1;font-family:'DM Mono',monospace;font-size:12px;">
+          <button class="btn btn-sm" onclick="tKey('stK')">Zeigen</button>
+        </div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:4px;">console.anthropic.com → API keys → Create Key</div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeOv('mSet')">Abbrechen</button><button class="btn btn-bl" onclick="savSet()">Speichern</button></div>
+  </div>
+</div>
+
+<script>
+// ── DATEN ────────────────────────────────────────────────────────────────────
+let KEY='', uid=100, dF='alle', eF='alle';
+let SS={ein:{c:'dat',d:-1},aus:{c:'dat',d:-1},bar:{c:'dat',d:-1}};
+let D={
+  ein:[
+    {id:1,dat:'15.03.2025',lief:'Bauhaus GmbH',desc:'Schrauben, Dübel, Silikon',herk:'inland',netto:42.86,mwst:19,brutto:51.00,kat:'Material & Waren',mand:'Mustermann GmbH',hint:''},
+    {id:2,dat:'18.03.2025',lief:'Shell Tankstelle',desc:'Diesel Transporter',herk:'inland',netto:67.23,mwst:19,brutto:80.00,kat:'Fahrzeug & Transport',mand:'Mustermann GmbH',hint:''},
+    {id:3,dat:'22.03.2025',lief:'Bosch Power Tools',desc:'Akkuschrauber GSR 18V',herk:'inland',netto:109.24,mwst:19,brutto:130.00,kat:'Werkzeug & Maschinen',mand:'Mustermann GmbH',hint:''},
+    {id:4,dat:'08.12.2025',lief:'Elektromax24',desc:'EVN LED-Modul + Versand',herk:'inland',netto:33.80,mwst:19,brutto:40.22,kat:'Material & Waren',mand:'Mustermann GmbH',hint:''},
+    {id:5,dat:'29.07.2025',lief:'Vidnoz / Cleverbridge',desc:'Add-on 15 mins starter',herk:'inland',netto:20.16,mwst:19,brutto:23.99,kat:'Büro & Verwaltung',mand:'Mustermann GmbH',hint:''},
+    {id:6,dat:'09.12.2025',lief:'Ledkia / Prismica S.L.',desc:'LED-Deckenleuchte + Streifen',herk:'eu',netto:216.90,mwst:0,brutto:216.90,kat:'Material & Waren',mand:'Mustermann GmbH',hint:'EU-Spanien — Reverse-Charge §13b UStG'},
+    {id:7,dat:'08.12.2025',lief:'Power Solutions Co. Ltd.',desc:'LED Chip 200W, 20 Stk.',herk:'drittland',netto:1030.00,mwst:0,brutto:1030.00,kat:'Material & Waren',mand:'Mustermann GmbH',hint:'China — Einfuhrumsatzsteuer beim Zoll'},
+    {id:8,dat:'11.04.2025',lief:'DHL / Deutsche Post',desc:'2 kg Paket Online Frankierung',herk:'inland',netto:6.19,mwst:0,brutto:6.19,kat:'Fahrzeug & Transport',mand:'Mustermann GmbH',hint:'Steuerbefreit §4 Nr.11b UStG'},
+  ],
+  aus:[
+    {id:10,dat:'05.03.2025',kund:'Beispiel Kunde GmbH',desc:'LED-Beleuchtung Showroom',rech:'RE-2025-001',netto:850.00,mwst:19,brutto:1011.50,stat:'bezahlt',mand:'Mustermann GmbH'},
+    {id:11,dat:'20.03.2025',kund:'Beispiel Kunde 2',desc:'Elektroinstallation Büro',rech:'RE-2025-002',netto:1240.00,mwst:19,brutto:1475.60,stat:'offen',mand:'Mustermann GmbH'},
+  ],
+  bar:[
+    {id:20,dat:'10.03.2025',haend:'OBI Markt',desc:'Kabelbinder, Klebeband',mwst:19,brutto:12.49,kat:'Material & Waren',mand:'Mustermann GmbH'},
+    {id:21,dat:'14.03.2025',haend:'Tankstelle BAB',desc:'Kaffee, Wasser Baustelle',mwst:7,brutto:8.90,kat:'Verpflegung',mand:'Mustermann GmbH'},
+  ],
+  mand:[{id:1,name:'Mustermann GmbH',beruf:'Elektriker / Mustermann GmbH',email:'info@beispiel.de',tel:'+49 ...'}]
+};
+
+// ── FORMAT ────────────────────────────────────────────────────────────────────
+const f2=n=>(+n).toFixed(2).replace('.',',')+' €';
+const hB=h=>h==='eu'?'<span class="badge b-am">🇪🇺 EU-Ausland</span>':h==='drittland'?'<span class="badge b-co">🌍 Drittland</span>':'<span class="badge b-bl">🇩🇪 Inland</span>';
+const kB=k=>{const m={'Material & Waren':'b-bl','Werkzeug & Maschinen':'b-am','Fahrzeug & Transport':'b-co','Büro & Verwaltung':'b-pu','Verpflegung':'b-gn','Sonstiges':'b-gr'};return`<span class="badge ${m[k]||'b-gr'}">${k||'—'}</span>`;};
+const mL=r=>r.herk==='eu'?'<span class="badge b-am">0% RC</span>':r.herk==='drittland'?'<span class="badge b-co">0% EUSt</span>':`${r.mwst}%`;
+const stB=s=>s==='bezahlt'?'<span class="badge b-gn">✓ Bezahlt</span>':'<span class="badge b-am">Offen</span>';
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+const pgN={dashboard:'Dashboard',eingang:'Eingangsrechnungen',ausgang:'Ausgangsrechnungen',bar:'Barbelege & Quittungen',mandanten:'Mandanten',export:'Export für Steuerberater'};
+function goTo(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('v-'+id).classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.getElementById('pgTitle').textContent=pgN[id]||id;
+  if(id==='dashboard')rDash();
+  if(id==='eingang')rEin();
+  if(id==='ausgang')rAus();
+  if(id==='bar')rBar();
+  if(id==='mandanten')rMand();
+  if(id==='export')rExp();
+}
+
+// ── SORT ─────────────────────────────────────────────────────────────────────
+function srt(rows,c,d){
+  return[...rows].sort((a,b)=>{
+    let av=a[c]??'',bv=b[c]??'';
+    if(c==='dat'){av=av.split('.').reverse().join('');bv=bv.split('.').reverse().join('');}
+    if(typeof av==='number')return d*(av-bv);
+    return d*String(av).localeCompare(String(bv),'de');
+  });
+}
+function sortBy(t,c){
+  if(SS[t].c===c)SS[t].d*=-1;else{SS[t].c=c;SS[t].d=1;}
+  if(t==='ein')rEin();if(t==='aus')rAus();if(t==='bar')rBar();
+}
+function th(t,c,lbl){
+  const s=SS[t],arr=s.c===c?(s.d===1?' ↑':' ↓'):'';
+  return`<th class="sort" onclick="sortBy('${t}','${c}')" title="Klicken zum Sortieren">${lbl}${arr}</th>`;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function rDash(f){
+  if(f)dF=f;
+  document.getElementById('s-tot').textContent=D.ein.length+D.aus.length+D.bar.length;
+  document.getElementById('s-en').textContent=f2(D.ein.reduce((s,r)=>s+r.netto,0));
+  document.getElementById('s-vs').textContent=f2(D.ein.filter(r=>r.herk==='inland'&&r.mwst>0).reduce((s,r)=>s+(r.brutto-r.netto),0));
+  document.getElementById('s-an').textContent=f2(D.aus.reduce((s,r)=>s+r.netto,0));
+  document.getElementById('s-am').textContent=f2(D.aus.reduce((s,r)=>s+(r.brutto-r.netto),0));
+  document.getElementById('s-ausl').textContent=D.ein.filter(r=>r.herk!=='inland').length;
+  let rows=[];
+  if(dF==='alle'||dF==='eingang')D.ein.forEach(r=>rows.push({...r,art:'ein',nm:r.lief}));
+  if(dF==='alle'||dF==='ausgang')D.aus.forEach(r=>rows.push({...r,art:'aus',nm:r.kund,herk:'inland',kat:'Ausgangsrechnung'}));
+  if(dF==='alle'||dF==='bar')D.bar.forEach(r=>rows.push({...r,art:'bar',nm:r.haend,netto:+(r.brutto/(1+r.mwst/100)).toFixed(2),herk:'inland'}));
+  rows.sort((a,b)=>b.dat.split('.').reverse().join('').localeCompare(a.dat.split('.').reverse().join('')));
+  const aB={ein:'<span class="badge b-bl">📥 Eingang</span>',aus:'<span class="badge b-gn">📤 Ausgang</span>',bar:'<span class="badge b-gr">🧾 Bar</span>'};
+  const tb=document.getElementById('dTb');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei">📋</div><div class="et">Noch keine Belege</div><div class="es">Lade eine Rechnung hoch um zu starten</div></div></td></tr>`;return;}
+  tb.innerHTML=rows.slice(0,25).map(r=>`<tr><td class="mono">${r.dat}</td><td class="bold">${r.nm}</td><td class="muted">${r.desc}</td><td>${aB[r.art]}</td><td class="mono">${f2(r.netto)}</td><td>${mL(r)}</td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td></tr>`).join('');
+}
+function dTab(f,el){document.querySelectorAll('#v-dashboard .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');rDash(f);}
+
+// ── EINGANG ───────────────────────────────────────────────────────────────────
+function rEin(f){
+  if(f)eF=f;
+  let rows=eF==='alle'?D.ein:D.ein.filter(r=>r.herk===eF);
+  rows=srt(rows,SS.ein.c,SS.ein.d);
+  document.getElementById('eTh').innerHTML=th('ein','dat','Datum')+th('ein','lief','Lieferant')+'<th>Was wurde geliefert?</th>'+th('ein','herk','Herkunft')+th('ein','netto','Netto')+'<th>MwSt</th>'+th('ein','brutto','Brutto')+th('ein','kat','Kategorie')+'<th></th>';
+  const tb=document.getElementById('eTb');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="ei">📥</div><div class="et">Keine Eingangsrechnungen</div><div class="es">Rechnung hochladen oder manuell eintragen</div></div></td></tr>`;document.getElementById('eFt').innerHTML='';return;}
+  tb.innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td class="bold">${r.lief}</td><td class="muted">${r.desc}${r.hint?` <span title="${r.hint}" style="cursor:help;color:var(--am)">⚠</span>`:''}</td><td>${hB(r.herk)}</td><td class="mono">${f2(r.netto)}</td><td>${mL(r)}</td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('ein',${r.id})">✕</button></td></tr>`).join('');
+  const tn=rows.reduce((s,r)=>s+r.netto,0),tb2=rows.reduce((s,r)=>s+r.brutto,0);
+  document.getElementById('eFt').innerHTML=`<tr class="tr-total"><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt ${rows.length} Belege</td><td class="mono">${f2(tn)}</td><td></td><td class="mono">${f2(tb2)}</td><td colspan="2"></td></tr>`;
+}
+function eTab(f,el){document.querySelectorAll('#v-eingang .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');rEin(f);}
+
+// ── AUSGANG ───────────────────────────────────────────────────────────────────
+function rAus(){
+  let rows=srt(D.aus,SS.aus.c,SS.aus.d);
+  document.getElementById('aTh').innerHTML=th('aus','dat','Datum')+th('aus','kund','Kunde')+'<th>Beschreibung</th><th>Rech.-Nr.</th>'+th('aus','netto','Netto')+'<th>MwSt</th>'+th('aus','brutto','Brutto')+th('aus','stat','Status')+'<th></th>';
+  const tb=document.getElementById('aTb');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="ei">📤</div><div class="et">Keine Ausgangsrechnungen</div></div></td></tr>`;document.getElementById('aFt').innerHTML='';return;}
+  tb.innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td class="bold">${r.kund}</td><td class="muted">${r.desc}</td><td class="mono" style="font-size:11px">${r.rech}</td><td class="mono">${f2(r.netto)}</td><td>${r.mwst}%</td><td class="mono bold">${f2(r.brutto)}</td><td>${stB(r.stat)}</td><td><button class="del-btn" onclick="del('aus',${r.id})">✕</button></td></tr>`).join('');
+  const tn=rows.reduce((s,r)=>s+r.netto,0),tb2=rows.reduce((s,r)=>s+r.brutto,0);
+  document.getElementById('aFt').innerHTML=`<tr class="tr-total"><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(tn)}</td><td></td><td class="mono">${f2(tb2)}</td><td colspan="2"></td></tr>`;
+}
+
+// ── BAR ───────────────────────────────────────────────────────────────────────
+function rBar(){
+  let rows=srt(D.bar,SS.bar.c,SS.bar.d);
+  document.getElementById('bTh').innerHTML=th('bar','dat','Datum')+th('bar','haend','Händler')+'<th>Was wurde gekauft?</th><th>MwSt</th>'+th('bar','brutto','Betrag')+th('bar','kat','Kategorie')+'<th></th>';
+  const tb=document.getElementById('bTb');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="ei">🧾</div><div class="et">Keine Barbelege</div></div></td></tr>`;document.getElementById('bFt').innerHTML='';return;}
+  tb.innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td class="bold">${r.haend}</td><td class="muted">${r.desc}</td><td>${r.mwst}%</td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('bar',${r.id})">✕</button></td></tr>`).join('');
+  document.getElementById('bFt').innerHTML=`<tr class="tr-total"><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(D.bar.reduce((s,r)=>s+r.brutto,0))}</td><td colspan="2"></td></tr>`;
+}
+
+// ── MANDANTEN ─────────────────────────────────────────────────────────────────
+function rMand(){
+  const g=document.getElementById('mGrid'),sel=document.getElementById('mandSel');
+  g.innerHTML='';sel.innerHTML='<option value="">Alle Mandanten</option>';
+  D.mand.forEach(m=>{
+    const ini=m.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const ec=D.ein.filter(r=>r.mand===m.name).length,ac=D.aus.filter(r=>r.mand===m.name).length,bc=D.bar.filter(r=>r.mand===m.name).length;
+    g.innerHTML+=`<div class="mc"><div class="mav">${ini}</div><div class="mname">${m.name}</div><div class="minfo">${m.beruf}</div><div class="minfo">${m.email}</div><div class="mstats"><div class="mstat"><strong>${ec}</strong>Eingang</div><div class="mstat"><strong>${ac}</strong>Ausgang</div><div class="mstat"><strong>${bc}</strong>Bar</div></div></div>`;
+    const o=document.createElement('option');o.value=m.name;o.textContent=m.name;sel.appendChild(o);
+  });
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function rExp(){
+  let rows=[];
+  D.ein.forEach(r=>rows.push({dat:r.dat,art:'Eingang',nm:r.lief,netto:r.netto,mwst:r.mwst,brutto:r.brutto,herk:r.herk,kat:r.kat,hint:r.hint}));
+  D.aus.forEach(r=>rows.push({dat:r.dat,art:'Ausgang',nm:r.kund,netto:r.netto,mwst:r.mwst,brutto:r.brutto,herk:'inland',kat:'Ausgangsrechnung',hint:''}));
+  D.bar.forEach(r=>rows.push({dat:r.dat,art:'Bar',nm:r.haend,netto:+(r.brutto/(1+r.mwst/100)).toFixed(2),mwst:r.mwst,brutto:r.brutto,herk:'inland',kat:r.kat,hint:''}));
+  document.getElementById('expTb').innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td><span class="badge ${r.art==='Eingang'?'b-bl':r.art==='Ausgang'?'b-gn':'b-gr'}">${r.art}</span></td><td class="bold">${r.nm}</td><td class="mono">${f2(r.netto)}</td><td>${r.mwst}%</td><td class="mono">${f2(r.brutto)}</td><td>${hB(r.herk)}</td><td>${kB(r.kat)}</td><td class="muted" style="font-size:11px">${r.hint||'—'}</td></tr>`).join('');
+}
+function doExp(type){
+  const h=['Datum','Belegart','Name','Netto (€)','MwSt (%)','Brutto (€)','Herkunft','Kategorie','Hinweis'];
+  let rows=[];
+  D.ein.forEach(r=>{if(type==='alle'||type==='ein'||(type==='ausl'&&r.herk!=='inland'))rows.push([r.dat,'Eingang',r.lief,r.netto.toFixed(2),r.mwst,r.brutto.toFixed(2),r.herk,r.kat,r.hint]);});
+  D.aus.forEach(r=>{if(type==='alle'||type==='aus')rows.push([r.dat,'Ausgang',r.kund,r.netto.toFixed(2),r.mwst,r.brutto.toFixed(2),'inland','Ausgangsrechnung','']);});
+  D.bar.forEach(r=>{if(type==='alle')rows.push([r.dat,'Bar',r.haend,(r.brutto/(1+r.mwst/100)).toFixed(2),r.mwst,r.brutto.toFixed(2),'inland',r.kat,'']);});
+  const csv=[h,...rows].map(r=>r.join(';')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download=`MIKU-BelegProfi_${type}_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+}
+
+// ── DRUCKEN ───────────────────────────────────────────────────────────────────
+function druck(id){
+  document.getElementById(id).textContent=new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  window.print();
+}
+
+// ── DELETE ────────────────────────────────────────────────────────────────────
+function del(t,id){
+  if(!confirm('Diesen Beleg wirklich löschen?'))return;
+  D[t]=D[t].filter(r=>r.id!==id);
+  if(t==='ein')rEin();if(t==='aus')rAus();if(t==='bar')rBar();rDash();
+}
+
+// ── UPLOAD & KI ───────────────────────────────────────────────────────────────
+async function upload(e,t){[...e.target.files].forEach(f=>processFile(f,t));e.target.value='';}
+
+async function processFile(file,type){
+  if(!KEY){
+    showAlert('Kein API-Key eingerichtet — bitte links auf "Einstellungen" klicken und Key eintragen. Oder "+ Manuell" nutzen.','am');
+    return;
+  }
+  document.getElementById('procBar').style.display='flex';
+  document.getElementById('procTxt').textContent=`"${file.name}" wird ausgelesen...`;
+  const toB64=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});
+  const b64=await toB64(file);
+  const isPdf=file.type==='application/pdf',isImg=file.type.startsWith('image/');
+  if(!isPdf&&!isImg){document.getElementById('procBar').style.display='none';showAlert('Nur PDF oder Bild-Dateien (JPG, PNG).','am');return;}
+  const ci=isPdf?{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}}:{type:'image',source:{type:'base64',media_type:file.type,data:b64}};
+  const prompts={
+    ein:`Lies diese Eingangsrechnung aus. Antworte NUR mit JSON ohne Backticks:
+{"dat":"TT.MM.JJJJ","lief":"Lieferant","desc":"max 60 Zeichen","herk":"inland","netto":0.00,"mwst":19,"brutto":0.00,"kat":"Material & Waren","hint":""}
+herk: inland=Deutschland, eu=EU-Ausland, drittland=China/USA/UK etc. Bei eu/drittland: mwst=0, hint=Steuerhinweis.
+kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwaltung, Sonstiges`,
+    aus:`Lies diese Ausgangsrechnung aus. Antworte NUR mit JSON ohne Backticks:
+{"dat":"TT.MM.JJJJ","kund":"Kunde","desc":"Beschreibung","rech":"Rechnungsnr","netto":0.00,"mwst":19,"brutto":0.00,"stat":"offen"}`,
+    bar:`Lies diesen Kassenbon aus. Antworte NUR mit JSON ohne Backticks:
+{"dat":"TT.MM.JJJJ","haend":"Händler","desc":"Was wurde gekauft","mwst":19,"brutto":0.00,"kat":"Material & Waren"}
+kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwaltung, Verpflegung, Sonstiges`
+  };
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,messages:[{role:'user',content:[ci,{type:'text',text:prompts[type]}]}]})
+    });
+    const d=await res.json();
+    if(d.error)throw new Error(d.error.message);
+    const txt=d.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+    const p=JSON.parse(txt);
+    p.id=++uid;p.mand=document.getElementById('mandSel').value||(D.mand[0]?.name||'');
+    D[type].push(p);
+    if(type==='ein'){rEin();if(p.herk!=='inland')showAlert(`Auslandsrechnung erkannt! ${p.hint}`,'am');}
+    if(type==='aus')rAus();
+    if(type==='bar')rBar();
+    rDash();
+    showAlert(`✓ "${p.lief||p.kund||p.haend}" wurde eingetragen!`,'gn');
+  }catch(err){
+    if(err.message&&(err.message.includes('fetch')||err.message.includes('Network')||err.message.includes('CORS'))){
+      showAlert('Tipp: Starte die App über START.bat — dann funktioniert der automatische Upload. Oder "+ Manuell" nutzen.','am');
+    }else{
+      showAlert('Konnte Rechnung nicht auslesen. Bitte über "+ Manuell" eingeben.','am');
+    }
+  }
+  document.getElementById('procBar').style.display='none';
+}
+
+// ── ORDNER DROP ───────────────────────────────────────────────────────────────
+async function getF(entry){
+  return new Promise(res=>{
+    if(entry.isFile){entry.file(f=>res([f]));}
+    else if(entry.isDirectory){const rd=entry.createReader();const all=[];const read=()=>rd.readEntries(async en=>{if(!en.length){res(all);return;}for(const e of en){const ff=await getF(e);all.push(...ff);}read();});read();}
+    else res([]);
+  });
+}
+async function dropZone(e,t){
+  e.preventDefault();
+  const sup=['.pdf','.jpg','.jpeg','.png'];
+  let files=[];
+  for(const item of[...e.dataTransfer.items]){
+    if(item.kind!=='file')continue;
+    const en=item.webkitGetAsEntry?item.webkitGetAsEntry():null;
+    if(en){const ff=await getF(en);files.push(...ff);}else{const f=item.getAsFile();if(f)files.push(f);}
+  }
+  files=files.filter(f=>sup.some(x=>f.name.toLowerCase().endsWith(x)));
+  if(!files.length){showAlert('Keine unterstützten Dateien gefunden (PDF, JPG, PNG).','am');return;}
+  showAlert(`${files.length} Datei${files.length>1?'en':''} gefunden — werden ausgelesen...`,'gn');
+  for(const f of files)await processFile(f,t);
+}
+[['uzE','ein'],['uzA','aus'],['uzB','bar']].forEach(([id,t])=>{
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag');});
+  el.addEventListener('dragleave',e=>{if(!el.contains(e.relatedTarget))el.classList.remove('drag');});
+  el.addEventListener('drop',e=>{el.classList.remove('drag');dropZone(e,t);});
+});
+
+// ── FORMULARE ─────────────────────────────────────────────────────────────────
+function openFrm(t){document.getElementById(t==='ein'?'mEin':t==='aus'?'mAus':'mBar').classList.add('open');}
+function closeOv(id,e){if(!e||e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');}
+function calcB(p){
+  const np=p==='e'?'eN':p==='a'?'aN':'bN';
+  const mp=p==='e'?'eMw':p==='a'?'aMw':'bMw';
+  const bp=p==='e'?'eBr':p==='a'?'aBr':'bBr';
+  const n=parseFloat(document.getElementById(np)?.value);
+  const m=parseInt(document.getElementById(mp)?.value);
+  if(!isNaN(n)&&!isNaN(m)){const b=document.getElementById(bp);if(b)b.value=(n*(1+m/100)).toFixed(2);}
+}
+function saveFrm(type){
+  const pfx=type==='ein'?'e':type==='aus'?'a':'b';
+  const dat=document.getElementById(pfx+'D')?.value?.trim();
+  const brutto=parseFloat(document.getElementById(pfx+'Br')?.value);
+  if(!dat||isNaN(brutto)){showAlert('Bitte Datum und Betrag ausfüllen.','rd');return;}
+  const mwst=parseInt(document.getElementById(pfx+'Mw')?.value||0);
+  const entry={id:++uid,dat,mwst,brutto,mand:document.getElementById('mandSel').value||(D.mand[0]?.name||'')};
+  if(type==='ein'){
+    entry.lief=document.getElementById('eL')?.value||'';
+    entry.desc=document.getElementById('eDsc')?.value||'';
+    entry.netto=parseFloat(document.getElementById('eN')?.value)||(brutto/(1+mwst/100));
+    entry.herk=document.getElementById('eHk')?.value||'inland';
+    entry.kat=document.getElementById('eKt')?.value||'Sonstiges';
+    entry.hint=entry.herk!=='inland'?(entry.herk==='eu'?'EU-Ausland — Reverse-Charge §13b UStG':'Drittland — Einfuhrumsatzsteuer beim Zoll'):'';
+    D.ein.push(entry);rEin();
+  }else if(type==='aus'){
+    entry.kund=document.getElementById('aK')?.value||'';
+    entry.desc=document.getElementById('aDsc')?.value||'';
+    entry.rech=document.getElementById('aR')?.value||'';
+    entry.netto=parseFloat(document.getElementById('aN')?.value)||(brutto/(1+mwst/100));
+    entry.stat=document.getElementById('aSt')?.value||'offen';
+    D.aus.push(entry);rAus();
+  }else{
+    entry.haend=document.getElementById('bH')?.value||'';
+    entry.desc=document.getElementById('bDsc')?.value||'';
+    entry.kat=document.getElementById('bKt')?.value||'Sonstiges';
+    D.bar.push(entry);rBar();
+  }
+  rDash();
+  closeOv(type==='ein'?'mEin':type==='aus'?'mAus':'mBar');
+  showAlert('Beleg wurde eingetragen!','gn');
+}
+
+// ── MANDANT ───────────────────────────────────────────────────────────────────
+function openMnd(){document.getElementById('mMnd').classList.add('open');}
+function saveMnd(){
+  const name=document.getElementById('mnN').value.trim();
+  if(!name){showAlert('Bitte Name eingeben.','rd');return;}
+  D.mand.push({id:++uid,name,beruf:document.getElementById('mnB').value,email:document.getElementById('mnE').value,tel:document.getElementById('mnT').value});
+  closeOv('mMnd');rMand();showAlert(`Mandant "${name}" wurde angelegt.`,'gn');
+}
+
+// ── SETUP ─────────────────────────────────────────────────────────────────────
+function tKey(id){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';}
+function applyUser(name,beruf,key){
+  KEY=key||'';
+  const ini=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('uAv').textContent=ini;
+  document.getElementById('uName').textContent=name;
+  document.getElementById('uRole').textContent=beruf||'Handwerker';
+  document.getElementById('kiOn').style.display=key?'flex':'none';
+  document.getElementById('kiOff').style.display=key?'none':'flex';
+}
+function saveSetup(){
+  const name=document.getElementById('sName').value.trim();
+  if(!name){document.getElementById('sName').focus();showAlert('Bitte deinen Namen eingeben.','rd');return;}
+  const beruf=document.getElementById('sBeruf').value.trim();
+  const key=document.getElementById('sKey').value.trim();
+  if(key&&!key.startsWith('')){showAlert('Der API-Key muss mit "" beginnen. Bitte nochmal kopieren.','rd');return;}
+  localStorage.setItem('bp_n',name);localStorage.setItem('bp_b',beruf);if(key)localStorage.setItem('bp_k',key);
+  applyUser(name,beruf,key);
+  document.getElementById('setupScr').style.display='none';
+  showAlert(`Willkommen ${name}! MIKU-BelegProfi ist bereit.`,'gn');
+}
+function skipSetup(){
+  const name=document.getElementById('sName').value.trim()||'Handwerker';
+  localStorage.setItem('bp_n',name);
+  applyUser(name,'','');
+  document.getElementById('setupScr').style.display='none';
+}
+function openSet(){
+  document.getElementById('stN').value=localStorage.getItem('bp_n')||'';
+  document.getElementById('stB').value=localStorage.getItem('bp_b')||'';
+  document.getElementById('stK').value=localStorage.getItem('bp_k')||'';
+  document.getElementById('mSet').classList.add('open');
+}
+function savSet(){
+  const name=document.getElementById('stN').value.trim();
+  const beruf=document.getElementById('stB').value.trim();
+  const key=document.getElementById('stK').value.trim();
+  if(key&&!key.startsWith('')){showAlert('Der API-Key muss mit "" beginnen.','rd');return;}
+  if(name)localStorage.setItem('bp_n',name);
+  if(beruf)localStorage.setItem('bp_b',beruf);
+  if(key)localStorage.setItem('bp_k',key);
+  applyUser(name||localStorage.getItem('bp_n')||'Handwerker',beruf,key||localStorage.getItem('bp_k')||'');
+  closeOv('mSet');showAlert('Einstellungen gespeichert!','gn');
+}
+
+// ── ALERT ─────────────────────────────────────────────────────────────────────
+function showAlert(msg,t='gn'){
+  const b=document.getElementById('alertBox');
+  b.className=`alert a-${t}`;
+  document.getElementById('alertTxt').textContent=msg;
+  b.style.display='flex';
+  setTimeout(()=>b.style.display='none',5000);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+(function(){
+  const n=localStorage.getItem('bp_n'),b=localStorage.getItem('bp_b')||'',k=localStorage.getItem('bp_k')||'';
+  if(n){applyUser(n,b,k);document.getElementById('setupScr').style.display='none';}
+  rDash();rMand();
+})();
+</script>
+</body>
+</html>
