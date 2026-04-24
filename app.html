@@ -4,12 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MIKU-BelegProfi</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#c9a84c">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BelegProfi">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F4F2ED;--sur:#FFF;--bor:rgba(0,0,0,0.09);--bor2:rgba(0,0,0,0.15);--tx:#1A1916;--tx2:#6B6860;--tx3:#A09D97;--bl:#1B4FD8;--bl2:#EBF0FF;--gn:#0F6E3A;--gn2:#E6F5EE;--am:#92520A;--am2:#FEF3E2;--rd:#B91C1C;--rd2:#FEE2E2;--co:#993C1D;--co2:#FAECE7;--pu:#5B3DB5;--pu2:#EEEDFE;--r:10px;--rl:16px;--sh:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);--shm:0 4px 16px rgba(0,0,0,0.10);}
@@ -386,7 +380,7 @@ tbody tr:hover td{background:var(--bg);}
             <button class="tab" onclick="dTab('bar',this)">Bar</button>
           </div>
         </div>
-        <div class="tw"><table><thead><tr><th>Datum</th><th>Name</th><th>Beschreibung</th><th>Art</th><th>Netto</th><th>MwSt</th><th>Brutto</th><th>Kategorie</th></tr></thead><tbody id="dTb"></tbody></table></div>
+        <div class="tw"><table><thead><tr id="dTh"></tr></thead><tbody id="dTb"></tbody></table></div>
       </div>
     </div>
 
@@ -654,7 +648,7 @@ tbody tr:hover td{background:var(--bg);}
 <script>
 // ── DATEN ────────────────────────────────────────────────────────────────────
 let KEY='', uid=100, dF='alle', eF='alle';
-let SS={ein:{c:'dat',d:-1},aus:{c:'dat',d:-1},bar:{c:'dat',d:-1}};
+let SS={ein:{c:'dat',d:-1},aus:{c:'dat',d:-1},bar:{c:'dat',d:-1},dash:{c:'dat',d:-1}};
 let D={
   ein:[],
   aus:[],
@@ -696,7 +690,7 @@ function srt(rows,c,d){
 }
 function sortBy(t,c){
   if(SS[t].c===c)SS[t].d*=-1;else{SS[t].c=c;SS[t].d=1;}
-  if(t==='ein')rEin();if(t==='aus')rAus();if(t==='bar')rBar();
+  if(t==='ein')rEin();if(t==='aus')rAus();if(t==='bar')rBar();if(t==='dash')rDash();
 }
 function th(t,c,lbl){
   const s=SS[t],arr=s.c===c?(s.d===1?' ↑':' ↓'):'';
@@ -716,7 +710,8 @@ function rDash(f){
   if(dF==='alle'||dF==='eingang')D.ein.forEach(r=>rows.push({...r,art:'ein',nm:r.lief}));
   if(dF==='alle'||dF==='ausgang')D.aus.forEach(r=>rows.push({...r,art:'aus',nm:r.kund,herk:'inland',kat:'Ausgangsrechnung'}));
   if(dF==='alle'||dF==='bar')D.bar.forEach(r=>rows.push({...r,art:'bar',nm:r.haend,netto:+(r.brutto/(1+r.mwst/100)).toFixed(2),herk:'inland'}));
-  rows.sort((a,b)=>b.dat.split('.').reverse().join('').localeCompare(a.dat.split('.').reverse().join('')));
+  rows=srt(rows,SS.dash.c==='nm'?'nm':SS.dash.c,SS.dash.d);
+  document.getElementById('dTh').innerHTML=th('dash','dat','Datum')+th('dash','nm','Name')+'<th>Beschreibung</th><th>Art</th>'+th('dash','netto','Netto')+'<th>MwSt</th>'+th('dash','brutto','Brutto')+'<th>Kategorie</th>';
   const aB={ein:'<span class="badge b-bl">📥 Eingang</span>',aus:'<span class="badge b-gn">📤 Ausgang</span>',bar:'<span class="badge b-gr">🧾 Bar</span>'};
   const tb=document.getElementById('dTb');
   if(!rows.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei">📋</div><div class="et">Noch keine Belege</div><div class="es">Lade eine Rechnung hoch um zu starten</div></div></td></tr>`;return;}
@@ -741,10 +736,10 @@ function eTab(f,el){document.querySelectorAll('#v-eingang .tab').forEach(t=>t.cl
 // ── AUSGANG ───────────────────────────────────────────────────────────────────
 function rAus(){
   let rows=srt(D.aus,SS.aus.c,SS.aus.d);
-  document.getElementById('aTh').innerHTML=th('aus','dat','Datum')+th('aus','kund','Kunde')+'<th>Beschreibung</th><th>Rech.-Nr.</th>'+th('aus','netto','Netto')+'<th>MwSt</th>'+th('aus','brutto','Brutto')+th('aus','stat','Status')+'<th></th>';
+  document.getElementById('aTh').innerHTML=th('aus','dat','Datum')+th('aus','kund','Kunde')+'<th>Beschreibung</th>'+th('aus','rech','Rech.-Nr.')+th('aus','netto','Netto')+'<th>MwSt</th>'+th('aus','brutto','Brutto')+th('aus','stat','Status')+'<th></th>';
   const tb=document.getElementById('aTb');
   if(!rows.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="ei">📤</div><div class="et">Keine Ausgangsrechnungen</div></div></td></tr>`;document.getElementById('aFt').innerHTML='';return;}
-  tb.innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td class="bold">${r.kund}</td><td class="muted">${r.desc}</td><td class="mono" style="font-size:11px">${r.rech}</td><td class="mono">${f2(r.netto)}</td><td>${r.mwst}%</td><td class="mono bold">${f2(r.brutto)}</td><td>${stB(r.stat)}</td><td><button class="del-btn" onclick="del('aus',${r.id})">✕</button></td></tr>`).join('');
+  tb.innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td class="bold">${r.kund}</td><td class="muted">${r.desc}</td><td class="mono" style="min-width:120px;font-size:12px">${r.rech}</td><td class="mono">${f2(r.netto)}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-r.netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${stB(r.stat)}</td><td><button class="del-btn" onclick="del('aus',${r.id})">✕</button></td></tr>`).join('');
   const tn=rows.reduce((s,r)=>s+r.netto,0),tb2=rows.reduce((s,r)=>s+r.brutto,0);
   document.getElementById('aFt').innerHTML=`<tr class="tr-total"><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(tn)}</td><td></td><td class="mono">${f2(tb2)}</td><td colspan="2"></td></tr>`;
 }
@@ -752,10 +747,10 @@ function rAus(){
 // ── BAR ───────────────────────────────────────────────────────────────────────
 function rBar(){
   let rows=srt(D.bar,SS.bar.c,SS.bar.d);
-  document.getElementById('bTh').innerHTML=th('bar','dat','Datum')+th('bar','haend','Händler')+'<th>Was wurde gekauft?</th><th>MwSt</th>'+th('bar','brutto','Betrag')+th('bar','kat','Kategorie')+'<th></th>';
+  document.getElementById('bTh').innerHTML=th('bar','dat','Datum')+th('bar','haend','Händler')+'<th>Was wurde gekauft?</th>'+th('bar','mwst','MwSt')+th('bar','brutto','Betrag')+th('bar','kat','Kategorie')+'<th></th>';
   const tb=document.getElementById('bTb');
   if(!rows.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="ei">🧾</div><div class="et">Keine Barbelege</div></div></td></tr>`;document.getElementById('bFt').innerHTML='';return;}
-  tb.innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td class="bold">${r.haend}</td><td class="muted">${r.desc}</td><td>${r.mwst}%</td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('bar',${r.id})">✕</button></td></tr>`).join('');
+  tb.innerHTML=rows.map(r=>{const netto=+(r.brutto/(1+r.mwst/100)).toFixed(2);return`<tr><td class="mono">${r.dat}</td><td class="bold">${r.haend}</td><td class="muted">${r.desc}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('bar',${r.id})">✕</button></td></tr>`;}).join('');
   document.getElementById('bFt').innerHTML=`<tr class="tr-total"><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(D.bar.reduce((s,r)=>s+r.brutto,0))}</td><td colspan="2"></td></tr>`;
 }
 
@@ -840,7 +835,19 @@ kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwa
     const txt=d.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
     const p=JSON.parse(txt);
     p.id=++uid;p.mand=document.getElementById('mandSel').value||(D.mand[0]?.name||'');
+    // Duplikat-Erkennung
+    const name=p.lief||p.kund||p.haend||'';
+    const isDup=D[type].some(r=>{
+      const rName=r.lief||r.kund||r.haend||'';
+      return r.dat===p.dat && Math.abs((r.brutto||0)-(p.brutto||0))<0.01 && rName.toLowerCase()===name.toLowerCase();
+    });
+    if(isDup&&!confirm(`⚠️ Mögliches Duplikat gefunden!\n\nDatum: ${p.dat}\nName: ${name}\nBetrag: ${p.brutto}€\n\nDieser Beleg scheint bereits eingetragen zu sein.\nTrotzdem hinzufügen?`)){
+      document.getElementById('procBar').style.display='none';
+      showAlert('Beleg nicht eingetragen — mögliches Duplikat.','am');
+      return;
+    }
     D[type].push(p);
+    autoSave();
     if(type==='ein'){rEin();if(p.herk!=='inland')showAlert(`Auslandsrechnung erkannt! ${p.hint}`,'am');}
     if(type==='aus')rAus();
     if(type==='bar')rBar();
