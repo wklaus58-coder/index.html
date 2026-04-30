@@ -571,7 +571,9 @@ tbody tr:hover td{background:var(--bg);}
       <div class="fgp"><label class="flbl">Mehrwertsteuer</label><div style="display:flex;gap:6px;align-items:center;"><select class="fi" id="eMw" onchange="onMwChange('eMw','eMwCustom');calcB('e')"></select><input class="fi" id="eMwCustom" type="number" min="0" max="100" step="0.1" placeholder="%" style="width:70px;display:none;" onchange="calcB('e')"></div></div>
       <div class="fgp"><label class="flbl">Brutto (€)</label><input class="fi" id="eBr" type="number" step="0.01" placeholder="0.00"></div>
       <div class="fgp"><label class="flbl">Woher kommt die Rechnung?</label><select class="fi" id="eHk"><option value="inland">🇩🇪 Deutschland</option><option value="eu">🇪🇺 EU-Ausland</option><option value="drittland">🌍 Drittland (China, USA...)</option></select></div>
-      <div class="fgp"><label class="flbl">Kategorie</label><select class="fi" id="eKt"><option>Material & Waren</option><option>Werkzeug & Maschinen</option><option>Fahrzeug & Transport</option><option>Büro & Verwaltung</option><option>Sonstiges</option></select></div>
+      <div class="fgp"><label class="flbl">Kategorie</label><select class="fi" id="eKt"><option>Material &amp; Waren</option><option>Werkzeug &amp; Maschinen</option><option>Fahrzeug &amp; Transport</option><option>Büro &amp; Verwaltung</option><option>Sonstiges</option></select></div>
+      <div class="fgp full"><label class="flbl">Buchungstext (für Steuerberater)</label><input class="fi" id="eBt" placeholder="z.B. Büro/Miete, Hosting, Handygebühr..."></div>
+      <div class="fgp"><label class="flbl">Zahlungsart</label><select class="fi" id="eZa"><option value="bank">Bank</option><option value="bar">Bar</option></select></div>
     </div>
     <div class="mf"><button class="btn" onclick="closeOv('mEin')">Abbrechen</button><button class="btn btn-bl" onclick="saveFrm('ein')">Eintragen</button></div>
   </div>
@@ -590,6 +592,8 @@ tbody tr:hover td{background:var(--bg);}
       <div class="fgp"><label class="flbl">Mehrwertsteuer</label><div style="display:flex;gap:6px;align-items:center;"><select class="fi" id="aMw" onchange="onMwChange('aMw','aMwCustom');calcB('a')"></select><input class="fi" id="aMwCustom" type="number" min="0" max="100" step="0.1" placeholder="%" style="width:70px;display:none;" onchange="calcB('a')"></div></div>
       <div class="fgp"><label class="flbl">Brutto (€)</label><input class="fi" id="aBr" type="number" step="0.01" placeholder="0.00"></div>
       <div class="fgp"><label class="flbl">Bezahlt?</label><select class="fi" id="aSt"><option value="offen">Noch offen</option><option value="bezahlt">Bezahlt ✓</option></select></div>
+      <div class="fgp full"><label class="flbl">Buchungstext (für Steuerberater)</label><input class="fi" id="aBt" placeholder="z.B. Beratungsleistung, Miete, Webdesign..."></div>
+      <div class="fgp"><label class="flbl">Zahlungsart</label><select class="fi" id="aZa"><option value="bank">Bank</option><option value="bar">Bar</option></select></div>
     </div>
     <div class="mf"><button class="btn" onclick="closeOv('mAus')">Abbrechen</button><button class="btn btn-bl" onclick="saveFrm('aus')">Eintragen</button></div>
   </div>
@@ -605,7 +609,8 @@ tbody tr:hover td{background:var(--bg);}
       <div class="fgp full"><label class="flbl">Was wurde gekauft?</label><input class="fi" id="bDsc" placeholder="z.B. Kabelbinder, Kaffee..."></div>
       <div class="fgp"><label class="flbl">Mehrwertsteuer</label><div style="display:flex;gap:6px;align-items:center;"><select class="fi" id="bMw" onchange="onMwChange('bMw','bMwCustom')"></select><input class="fi" id="bMwCustom" type="number" min="0" max="100" step="0.1" placeholder="%" style="width:70px;display:none;"></div></div>
       <div class="fgp"><label class="flbl">Betrag (€)</label><input class="fi" id="bBr" type="number" step="0.01" placeholder="0.00"></div>
-      <div class="fgp"><label class="flbl">Kategorie</label><select class="fi" id="bKt"><option>Material & Waren</option><option>Werkzeug & Maschinen</option><option>Fahrzeug & Transport</option><option>Büro & Verwaltung</option><option>Verpflegung</option><option>Sonstiges</option></select></div>
+      <div class="fgp"><label class="flbl">Kategorie</label><select class="fi" id="bKt"><option>Material &amp; Waren</option><option>Werkzeug &amp; Maschinen</option><option>Fahrzeug &amp; Transport</option><option>Büro &amp; Verwaltung</option><option>Verpflegung</option><option>Sonstiges</option></select></div>
+      <div class="fgp full"><label class="flbl">Buchungstext (für Steuerberater)</label><input class="fi" id="bBt" placeholder="z.B. Diesel &amp; Wäsche, Büromaterial..."></div>
     </div>
     <div class="mf"><button class="btn" onclick="closeOv('mBar')">Abbrechen</button><button class="btn btn-bl" onclick="saveFrm('bar')">Eintragen</button></div>
   </div>
@@ -788,12 +793,51 @@ function rExp(){
   document.getElementById('expTb').innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td><span class="badge ${r.art==='Eingang'?'b-bl':r.art==='Ausgang'?'b-gn':'b-gr'}">${r.art}</span></td><td class="bold">${r.nm}</td><td class="mono">${f2(r.netto)}</td><td>${r.mwst}%</td><td class="mono">${f2(r.brutto)}</td><td>${hB(r.herk)}</td><td>${kB(r.kat)}</td><td class="muted" style="font-size:11px">${r.hint||'—'}</td></tr>`).join('');
 }
 function doExp(type){
-  const h=['Datum','Belegart','Name','Netto (€)','MwSt (%)','Brutto (€)','Herkunft','Kategorie','Hinweis'];
-  let rows=[];
-  D.ein.forEach(r=>{if(type==='alle'||type==='ein'||(type==='ausl'&&r.herk!=='inland'))rows.push([r.dat,'Eingang',r.lief,r.netto.toFixed(2),r.mwst,r.brutto.toFixed(2),r.herk,r.kat,r.hint]);});
-  D.aus.forEach(r=>{if(type==='alle'||type==='aus')rows.push([r.dat,'Ausgang',r.kund,r.netto.toFixed(2),r.mwst,r.brutto.toFixed(2),'inland','Ausgangsrechnung','']);});
-  D.bar.forEach(r=>{if(type==='alle')rows.push([r.dat,'Bar',r.haend,(r.brutto/(1+r.mwst/100)).toFixed(2),r.mwst,r.brutto.toFixed(2),'inland',r.kat,'']);});
-  const csv=[h,...rows].map(r=>r.join(';')).join('\n');
+  // Alle MwSt-Sätze aus aktuellen Daten ermitteln
+  const land=localStorage.getItem('bp_land')||'de';
+  // Standard-Sätze je Land für Spalten
+  const rateMap={de:[0,7,19],at:[0,10,13,20],ch:[0,2.6,3.8,8.1]};
+  const allRates=new Set();
+  const allData=[];
+  D.ein.forEach(r=>{if(type==='alle'||type==='ein'||(type==='ausl'&&r.herk!=='inland')){allRates.add(r.mwst);allData.push({...r,art:'Eingang',nm:r.lief,netto:r.netto});}});
+  D.aus.forEach(r=>{if(type==='alle'||type==='aus'){allRates.add(r.mwst);allData.push({...r,art:'Ausgang',nm:r.kund,netto:r.netto});}});
+  D.bar.forEach(r=>{if(type==='alle'){const n=+(r.brutto/(1+r.mwst/100)).toFixed(2);allRates.add(r.mwst);allData.push({...r,art:'Bar',nm:r.haend,netto:n});}});
+  const rates=[...allRates].sort((a,b)=>a-b);
+  // Header aufbauen
+  const h=['Datum','Bank/Bar','Belegart','Name','Buchungstext'];
+  rates.forEach(v=>{
+    const lbl=v+'%';
+    h.push('Brutto '+lbl,'Netto '+lbl,'MwSt '+lbl);
+  });
+  h.push('Brutto Gesamt','Netto Gesamt');
+  // Zeilen aufbauen
+  const rows=allData.map(r=>{
+    const zahl=r.zahl||(r.art==='Bar'?'Bar':'Bank');
+    const row=[r.dat,zahl.charAt(0).toUpperCase()+zahl.slice(1),r.art,r.nm,r.bucht||''];
+    let sumBrutto=0,sumNetto=0;
+    rates.forEach(v=>{
+      if(r.mwst===v){
+        const mwstBetrag=+(r.brutto-r.netto).toFixed(2);
+        row.push(r.brutto.toFixed(2),r.netto.toFixed(2),mwstBetrag.toFixed(2));
+        sumBrutto+=r.brutto;sumNetto+=r.netto;
+      }else{row.push('','','');}
+    });
+    row.push(r.brutto.toFixed(2),r.netto.toFixed(2));
+    return row;
+  });
+  // Summenzeile
+  const sumRow=['SUMME','','','',''];
+  rates.forEach(v=>{
+    const rr=allData.filter(r=>r.mwst===v);
+    const sB=rr.reduce((s,r)=>s+r.brutto,0);
+    const sN=rr.reduce((s,r)=>s+r.netto,0);
+    const sM=+(sB-sN).toFixed(2);
+    sumRow.push(sB.toFixed(2),sN.toFixed(2),sM.toFixed(2));
+  });
+  const totB=allData.reduce((s,r)=>s+r.brutto,0);
+  const totN=allData.reduce((s,r)=>s+r.netto,0);
+  sumRow.push(totB.toFixed(2),totN.toFixed(2));
+  const csv=[h,...rows,sumRow].map(r=>r.join(';')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
   a.download=`MIKU-BelegProfi_${type}_${new Date().toISOString().slice(0,10)}.csv`;a.click();
 }
@@ -930,6 +974,8 @@ function saveFrm(type){
     entry.herk=document.getElementById('eHk')?.value||'inland';
     entry.kat=document.getElementById('eKt')?.value||'Sonstiges';
     entry.hint=entry.herk!=='inland'?(entry.herk==='eu'?'EU-Ausland — Reverse-Charge §13b UStG':'Drittland — Einfuhrumsatzsteuer beim Zoll'):'';
+    entry.bucht=document.getElementById('eBt')?.value||'';
+    entry.zahl=document.getElementById('eZa')?.value||'bank';
     D.ein.push(entry);rEin();
   }else if(type==='aus'){
     entry.kund=document.getElementById('aK')?.value||'';
@@ -937,11 +983,15 @@ function saveFrm(type){
     entry.rech=document.getElementById('aR')?.value||'';
     entry.netto=parseFloat(document.getElementById('aN')?.value)||(brutto/(1+mwst/100));
     entry.stat=document.getElementById('aSt')?.value||'offen';
+    entry.bucht=document.getElementById('aBt')?.value||'';
+    entry.zahl=document.getElementById('aZa')?.value||'bank';
     D.aus.push(entry);rAus();
   }else{
     entry.haend=document.getElementById('bH')?.value||'';
     entry.desc=document.getElementById('bDsc')?.value||'';
     entry.kat=document.getElementById('bKt')?.value||'Sonstiges';
+    entry.bucht=document.getElementById('bBt')?.value||'';
+    entry.zahl='bar';
     D.bar.push(entry);rBar();
   }
   rDash();
