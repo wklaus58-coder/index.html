@@ -985,12 +985,14 @@ function doExp(type){
     const sN=+rr.reduce((s,r)=>s+r.netto,0).toFixed(2);
     sumRow.push(sB,sN,+((sB-sN).toFixed(2)));
   });
-  // Spaltenbreiten berechnen
+  // Feste Spaltenbreiten nach Vorgabe: A=11, B/C=13, D=31, E-J=13, K-M=15
   const allRows=[h,...rows,sumRow];
   const colW=h.map((_,ci)=>{
-    let max=4;
-    allRows.forEach(row=>{const v=row[ci];const l=v!=null?String(v).length:0;if(l>max)max=l;});
-    return Math.min(max+3,45);
+    if(ci===0) return 11;        // A: Datum
+    if(ci===1||ci===2) return 13; // B/C: Bank/Bar, Belegart
+    if(ci===3) return 31;         // D: Name
+    if(ci>=4&&ci<=9) return 13;  // E-J: MwSt-Gruppen
+    return 15;                    // K-M: weitere Spalten
   });
   const boldSet=new Set([0,allRows.length-1]);
   const xlsxData=buildXlsx(allRows,colW,boldSet);
