@@ -54,6 +54,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .slbl{font-size:11px;color:var(--tx3);font-weight:500;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
 .sval{font-size:22px;font-weight:600;letter-spacing:-0.5px;}
 .ssub2{font-size:11px;color:var(--tx3);margin-top:3px;}
+.srow{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;padding-top:8px;border-top:1px solid var(--bor);gap:8px;}
+.srow-lbl{font-size:12px;color:var(--tx);font-weight:500;}
+.srow-val{font-size:13px;font-weight:700;color:var(--tx);font-variant-numeric:tabular-nums;}
+.stat.bl .srow-lbl,.stat.bl .srow-val{color:white;}
+.stat.bl .srow{border-top-color:rgba(255,255,255,0.3);}
+.sqrow{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:8px;padding-top:8px;border-top:1px solid var(--bor);}
+.sqcell{display:flex;justify-content:space-between;align-items:baseline;gap:4px;}
+.sqcell-lbl{font-size:11px;color:var(--tx2);font-weight:500;}
+.sqcell-val{font-size:12px;font-weight:700;color:var(--tx);font-variant-numeric:tabular-nums;}
 .stat.bl{background:var(--bl);border-color:var(--bl);}
 .stat.bl .slbl,.stat.bl .sval,.stat.bl .ssub2{color:white;}
 .uz{border:2px dashed var(--bor2);border-radius:var(--rl);padding:32px 24px;text-align:center;cursor:pointer;transition:all 0.18s;background:var(--sur);margin-bottom:20px;}
@@ -534,11 +543,48 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
     <div class="view active" id="v-dashboard">
       <div class="stitle">Guten Tag! 👋</div>
       <div class="ssub">Hier siehst du alle deine Belege auf einen Blick.</div>
-      <div class="stats">
-        <div class="stat bl"><div class="slbl">Belege insgesamt</div><div class="sval" id="s-tot">0</div><div class="ssub2">Eingang + Ausgang + Bar</div></div>
-        <div class="stat"><div class="slbl">Eingang Netto</div><div class="sval" id="s-en">0,00 €</div><div class="ssub2">Vorsteuer: <span id="s-vs">0,00 €</span></div></div>
-        <div class="stat"><div class="slbl">Ausgang Netto</div><div class="sval" id="s-an">0,00 €</div><div class="ssub2">MwSt: <span id="s-am">0,00 €</span></div></div>
-        <div class="stat"><div class="slbl">Auslandsrechnungen</div><div class="sval" id="s-ausl">0</div><div class="ssub2">EU + Drittland</div></div>
+      <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+        <div class="stat bl">
+          <div class="slbl">Belege insgesamt</div>
+          <div class="sval" id="s-tot">0</div>
+          <div class="ssub2">Eingang + Ausgang + Bar</div>
+        </div>
+        <div class="stat">
+          <div class="slbl">📥 Eingangsrechnungen</div>
+          <div class="sval" id="s-ebrutto">0,00 €</div>
+          <div class="srow"><span class="srow-lbl">Netto</span><span class="srow-val" id="s-en">0,00 €</span></div>
+          <div class="srow"><span class="srow-lbl">Vorsteuer</span><span class="srow-val" id="s-vs">0,00 €</span></div>
+        </div>
+        <div class="stat">
+          <div class="slbl">📤 Ausgangsrechnungen</div>
+          <div class="sval" id="s-abrutto">0,00 €</div>
+          <div class="srow"><span class="srow-lbl">Netto</span><span class="srow-val" id="s-an">0,00 €</span></div>
+          <div class="srow"><span class="srow-lbl">MwSt</span><span class="srow-val" id="s-am">0,00 €</span></div>
+        </div>
+      </div>
+      <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-top:0;">
+        <div class="stat">
+          <div class="slbl">🧾 Barbelege</div>
+          <div class="sval" id="s-bbrutto">0,00 €</div>
+          <div class="srow"><span class="srow-lbl">Netto</span><span class="srow-val" id="s-bn">0,00 €</span></div>
+          <div class="srow"><span class="srow-lbl">MwSt</span><span class="srow-val" id="s-bm">0,00 €</span></div>
+        </div>
+        <div class="stat">
+          <div class="slbl">🌍 Auslandsrechnungen</div>
+          <div class="sval" id="s-ausl">0</div>
+          <div class="ssub2">EU + Drittland</div>
+          <div class="srow"><span class="srow-lbl">Betrag</span><span class="srow-val" id="s-auslbetrag">0,00 €</span></div>
+        </div>
+        <div class="stat">
+          <div class="slbl">📊 USt-Saldo (zu zahlen / zu erhalten)</div>
+          <div class="sval" id="s-ust">0,00 €</div>
+          <div class="sqrow">
+            <div class="sqcell"><span class="sqcell-lbl">Q1</span><span class="sqcell-val" id="s-q1">0,00 €</span></div>
+            <div class="sqcell"><span class="sqcell-lbl">Q2</span><span class="sqcell-val" id="s-q2">0,00 €</span></div>
+            <div class="sqcell"><span class="sqcell-lbl">Q3</span><span class="sqcell-val" id="s-q3">0,00 €</span></div>
+            <div class="sqcell"><span class="sqcell-lbl">Q4</span><span class="sqcell-val" id="s-q4">0,00 €</span></div>
+          </div>
+        </div>
       </div>
       <div class="tc">
         <div class="thead2">
@@ -889,14 +935,47 @@ function th(t,c,lbl){
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function qOf(dat){
+  const m=parseInt((dat||'').split('.')[1]||0);
+  if(m>=1&&m<=3)return 1;if(m>=4&&m<=6)return 2;if(m>=7&&m<=9)return 3;return 4;
+}
 function rDash(f){
   if(f)dF=f;
   document.getElementById('s-tot').textContent=D.ein.length+D.aus.length+D.bar.length;
-  document.getElementById('s-en').textContent=f2(D.ein.reduce((s,r)=>s+r.netto,0));
-  document.getElementById('s-vs').textContent=f2(D.ein.filter(r=>r.herk==='inland'&&r.mwst>0).reduce((s,r)=>s+(r.brutto-r.netto),0));
-  document.getElementById('s-an').textContent=f2(D.aus.reduce((s,r)=>s+r.netto,0));
-  document.getElementById('s-am').textContent=f2(D.aus.reduce((s,r)=>s+(r.brutto-r.netto),0));
-  document.getElementById('s-ausl').textContent=D.ein.filter(r=>r.herk!=='inland').length;
+  // Eingang
+  const eBrutto=D.ein.reduce((s,r)=>s+r.brutto,0);
+  const eNetto=D.ein.reduce((s,r)=>s+r.netto,0);
+  const eVSt=D.ein.filter(r=>r.herk==='inland'&&r.mwst>0).reduce((s,r)=>s+(r.brutto-r.netto),0);
+  document.getElementById('s-ebrutto').textContent=f2(eBrutto);
+  document.getElementById('s-en').textContent=f2(eNetto);
+  document.getElementById('s-vs').textContent=f2(eVSt);
+  // Ausgang
+  const aBrutto=D.aus.reduce((s,r)=>s+r.brutto,0);
+  const aNetto=D.aus.reduce((s,r)=>s+r.netto,0);
+  const aMwst=D.aus.reduce((s,r)=>s+(r.brutto-r.netto),0);
+  document.getElementById('s-abrutto').textContent=f2(aBrutto);
+  document.getElementById('s-an').textContent=f2(aNetto);
+  document.getElementById('s-am').textContent=f2(aMwst);
+  // Bar
+  const bBrutto=D.bar.reduce((s,r)=>s+r.brutto,0);
+  const bNetto=D.bar.reduce((s,r)=>s+(r.brutto/(1+r.mwst/100)),0);
+  const bMwst=bBrutto-bNetto;
+  document.getElementById('s-bbrutto').textContent=f2(bBrutto);
+  document.getElementById('s-bn').textContent=f2(bNetto);
+  document.getElementById('s-bm').textContent=f2(bMwst);
+  // Ausland
+  const auslRows=D.ein.filter(r=>r.herk!=='inland');
+  document.getElementById('s-ausl').textContent=auslRows.length;
+  document.getElementById('s-auslbetrag').textContent=f2(auslRows.reduce((s,r)=>s+r.brutto,0));
+  // USt-Saldo: Ausgang MwSt - Eingang Vorsteuer (positiv = zu zahlen, negativ = zu erhalten)
+  const ustGes=aMwst-eVSt;
+  document.getElementById('s-ust').textContent=f2(ustGes);
+  // Quartale
+  [1,2,3,4].forEach(q=>{
+    const qAus=D.aus.filter(r=>qOf(r.dat)===q).reduce((s,r)=>s+(r.brutto-r.netto),0);
+    const qEin=D.ein.filter(r=>r.herk==='inland'&&r.mwst>0&&qOf(r.dat)===q).reduce((s,r)=>s+(r.brutto-r.netto),0);
+    document.getElementById(`s-q${q}`).textContent=f2(qAus-qEin);
+  });
   let rows=[];
   if(dF==='alle'||dF==='eingang')D.ein.forEach(r=>rows.push({...r,art:'ein',nm:r.lief}));
   if(dF==='alle'||dF==='ausgang')D.aus.forEach(r=>rows.push({...r,art:'aus',nm:r.kund,herk:'inland',kat:'Ausgangsrechnung'}));
