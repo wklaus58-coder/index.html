@@ -1201,6 +1201,7 @@ function parseOcrText(text,type){
   // Zahlungsbeleg (Finom/Bank) erkennen
   // PDF.js gibt aus: "...ABSENDER  LuxLumenLED  USt... IBAN... BIC...  EMPFÄNGER  AOK Gesundheitskasse  IBAN..."
   // EMPFÄNGER steht direkt vor dem Empfänger-Namen (durch Leerzeichen getrennt, aber in einem Block)
+  let desc='';
   const isZahlungsbeleg=/zahlungsbeleg|created with finom/i.test(t);
   if(isZahlungsbeleg){
     // Empfänger: Text nach "EMPFÄNGER" bis zum nächsten IBAN/BIC
@@ -1231,9 +1232,8 @@ function parseOcrText(text,type){
   if(type!=='bar'&&kat==='Verpflegung')kat='Sonstiges';
   if(type!=='ein'&&kat==='Überweisungen & Abgaben')kat='Sonstiges';
 
-  // Beschreibung
-  let desc='';
-  for(const l of lines){
+  // Beschreibung (falls nicht schon durch Zahlungsbeleg gesetzt)
+  if(!desc)for(const l of lines){
     if(l.toLowerCase()!==name.toLowerCase()&&l.length>5&&l.length<80&&!/^\d{1,2}[.\-\/]/.test(l)){
       desc=l.slice(0,60);break;
     }
