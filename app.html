@@ -1459,12 +1459,14 @@ function resetApp(){
 // ── PRIVACY & SPLASH ──────────────────────────────────────────────────────
 function acceptPrivacyKI(){
   localStorage.setItem('bp_privacy_ok','1');
+  localStorage.setItem('bp_privacy_ver','2.0');
   localStorage.setItem('bp_ki_consent','1');
   document.getElementById('privacyScr').style.display='none';
   startApp();
 }
 function acceptPrivacyLocal(){
   localStorage.setItem('bp_privacy_ok','1');
+  localStorage.setItem('bp_privacy_ver','2.0');
   localStorage.removeItem('bp_ki_consent');
   document.getElementById('privacyScr').style.display='none';
   startApp();
@@ -1499,13 +1501,17 @@ function startApp(){
 
 // ── INIT ─────────────────────────────────────────────────────────────────
 (function(){
+  const APP_VERSION='2.0'; // Neue Version erzwingt Datenschutz-Dialog
   const splash=document.getElementById('splashScr');
   setTimeout(()=>{
     splash.classList.add('fade-out');
     setTimeout(()=>{
       splash.style.display='none';
       const privacyOk=localStorage.getItem('bp_privacy_ok');
-      if(!privacyOk){
+      const privacyVer=localStorage.getItem('bp_privacy_ver');
+      if(!privacyOk||privacyVer!==APP_VERSION){
+        // Neue Version oder noch keine Zustimmung: Dialog anzeigen
+        localStorage.removeItem('bp_privacy_ok');
         document.getElementById('privacyScr').style.display='flex';
       } else {
         startApp();
