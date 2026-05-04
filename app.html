@@ -1199,20 +1199,35 @@ function parseOcrText(text,type){
   if(/China|USA|UK|United Kingdom|Großbritannien|Japan/i.test(t)){herk='drittland';hint='Drittland-Rechnung — bitte Herkunft und EUSt prüfen.';mwst=0;}
 
   // Zahlungsbeleg (Finom/Bank) erkennen
-  // Finom-Struktur: Zeile 1=ZAHLUNGSBELEG, Zeile 5=Beschreibung:..., Zeile 6=ABSENDER EMPFÄNGER, Zeile 7=Name links | Name rechts
+  // Finom-Struktur (PDF.js liest Spalten getrennt, linke zuerst):
+  // ...ABSENDER / EMPFÄNGER / LuxLumenLED(Absender) / AOK Gesundheitskasse(Empfänger) / USt...
   const isZahlungsbeleg=/zahlungsbeleg|created with finom/i.test(t);
   if(isZahlungsbeleg){
     const tLines=t.split(/[\n\r]+/).map(l=>l.trim()).filter(l=>l.length>0);
-    // Empfänger: Zeile nach "ABSENDER...EMPFÄNGER" Header — rechte Spalte auslesen
+    // Strategie: ABSENDER-Zeile finden, dann den Namen danach merken (=Absender-Name),
+    // dann weitersuchen bis ein anderer Name kommt (=Empfänger)
+    let absenderName='';
+    let absenderIdx=-1;
     for(let i=0;i<tLines.length;i++){
-      if(/ABSENDER.*EMPF.NGER|EMPF.NGER.*ABSENDER/i.test(tLines[i])){
-        // Nächste Zeile enthält: "LuxLumenLED    AOK Gesundheitskasse"
-        // Rechte Hälfte (nach Mitte) nehmen
-        const nextLine=tLines[i+1]||'';
-        const mid=Math.floor(nextLine.length/2);
-        const rightPart=nextLine.slice(mid).trim();
-        if(rightPart.length>2&&!/^IBAN/i.test(rightPart)&&!/^BIC/i.test(rightPart)){
-          name=rightPart.slice(0,50);
+      if(/^ABSENDER$/i.test(tLines[i])){absenderIdx=i;break;}
+    }
+    if(absenderIdx>=0){
+      // Absender-Name = erste nicht-leere Zeile nach ABSENDER die kein Keyword ist
+      for(let j=absenderIdx+1;j<Math.min(absenderIdx+5,tLines.length);j++){
+        const c=tLines[j];
+        if(c.length>2&&!/^EMPF/i.test(c)&&!/^IBAN/i.test(c)&&!/^BIC/i.test(c)&&!/^USt/i.test(c)){
+          absenderName=c;break;
+        }
+      }
+    }
+    // Empfänger-Name = erste nicht-leere Zeile nach EMPFÄNGER die NICHT der Absender-Name ist
+    for(let i=0;i<tLines.length;i++){
+      if(/^EMPF.NGER$/i.test(tLines[i])){
+        for(let j=i+1;j<Math.min(i+8,tLines.length);j++){
+          const cand=tLines[j];
+          if(cand.length>2&&!/^IBAN/i.test(cand)&&!/^BIC/i.test(cand)&&!/^USt/i.test(cand)&&!/^[A-Z]{2}\d{2}/.test(cand)&&cand!==absenderName){
+            name=cand.slice(0,50);break;
+          }
         }
         break;
       }
