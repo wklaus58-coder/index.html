@@ -1148,99 +1148,101 @@ function parseOcrText(text,type){
   const mwstStd=mwstDef[currentLand]||19;
   const t=text;
 
-  // Datum erkennen
+  // ── 1. FINOM ZAHLUNGSBELEG ────────────────────────────────────────────────
+  if(/zahlungsbeleg|created with finom/i.test(t)){
+    let dat='',brutto=0,name='',desc='';
+    const dm=t.match(/(?:Abgeschlossen|Get.tigt)\s+am:\s*(\d{1,2}\.\d{1,2}\.\d{4})/i);
+    if(dm)dat=dm[1];
+    const bm=t.match(/[–\-]\s*(\d{1,6}[.,]\d{2})\s*EUR/i);
+    if(bm)brutto=parseFloat(bm[1].replace(',','.'));
+    const em=t.match(/EMPF.NGER\s+(.+?)(?:\s+IBAN|\s+BIC|\s+USt\.)/i);
+    if(em){const c=em[1].trim();if(c.length>2&&!/^IBAN|^BIC|^[A-Z]{2}\d{2}/i.test(c))name=c.slice(0,50);}
+    const dm2=t.match(/Beschreibung:\s*(.{5,100}?)(?:\s{2,}|ABSENDER|$)/i);
+    if(dm2)desc=dm2[1].trim().slice(0,80);
+    if(!desc)desc=name;
+    if(type==='ein')return{dat,lief:name,desc,herk:'inland',netto:brutto,mwst:0,brutto,kat:'Überweisungen & Abgaben',hint:'',rech:''};
+    if(type==='aus')return{dat,kund:name,desc,rech:'',netto:brutto,mwst:0,brutto,stat:'offen'};
+    if(type==='bar')return{dat,haend:name,desc,mwst:0,brutto,kat:'Sonstiges'};
+    return{};
+  }
+
+  // ── 2. DATUM ──────────────────────────────────────────────────────────────
   let dat='';
-  const datM=t.match(/(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{2,4})/);
+  const datM=t.match(/(?:Rechnungs|Beleg|Liefer|Ausstellungs)?datum\s*:?\s*(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{2,4})/i)
+            ||t.match(/(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{2,4})/);
   if(datM){
     const d=datM[1].padStart(2,'0'),m=datM[2].padStart(2,'0');
     let y=datM[3];if(y.length===2)y='20'+y;
     dat=`${d}.${m}.${y}`;
   }
 
-  // Betrag erkennen (größter Betrag = Brutto)
-  const amounts=[];
-  const amtRx=/(\d{1,6}[.,]\d{2})\s*€?/g;
-  let am;
-  while((am=amtRx.exec(t))!==null){
-    const v=parseFloat(am[1].replace(',','.'));
-    if(v>0.5&&v<99999)amounts.push(v);
+  // ── 3. BETRAG ─────────────────────────────────────────────────────────────
+  let brutto=0;
+  const bm=t.match(/(?:Brutto|Gesamt|Total|Gesamtbetrag|Rechnungsbetrag|Summe)\s*:?\s*(\d{1,6}[.,]\d{2})\s*€?/i);
+  if(bm){brutto=parseFloat(bm[1].replace(',','.'));}
+  else{
+    const amounts=[];
+    const amtRx=/(\d{1,6}[.,]\d{2})\s*€/g;let am;
+    while((am=amtRx.exec(t))!==null){const v=parseFloat(am[1].replace(',','.'));if(v>0.5&&v<99999)amounts.push(v);}
+    if(amounts.length)brutto=Math.max(...amounts);
   }
-  amounts.sort((a,b)=>b-a);
-  const brutto=amounts[0]||0;
 
-  // MwSt-Satz erkennen
+  // ── 4. MWST ───────────────────────────────────────────────────────────────
   let mwst=mwstStd;
-  const mwstM=t.match(/(19|20|7|10|13|8[.,]1|3[.,]8|2[.,]6)\s*%/);
-  if(mwstM)mwst=parseFloat(mwstM[1].replace(',','.'));
-  if(/steuerfrei|steuerbefreit|0\s*%|RC|Reverse/i.test(t))mwst=0;
+  if(/steuerfrei|steuerbefreit|0\s*%|Reverse\s*Charge|\bRC\b/i.test(t)){mwst=0;}
+  else{const mm=t.match(/(19|20|7|10|13|8[.,]1|3[.,]8|2[.,]6)\s*%/);if(mm)mwst=parseFloat(mm[1].replace(',','.')); }
 
-  // Netto berechnen
+  // ── 5. NETTO ──────────────────────────────────────────────────────────────
   const netto=mwst>0?Math.round(brutto/(1+mwst/100)*100)/100:brutto;
 
-  // Lieferant/Händler/Kunde erkennen
+  // ── 6. NAME ───────────────────────────────────────────────────────────────
   let name='';
-  const lines=t.split(/\n/).map(l=>l.trim()).filter(l=>l.length>2);
-  for(const l of lines){
-    if(/[A-ZÄÖÜ]{2,}/.test(l)&&l.length>3&&l.length<60&&!/^\d/.test(l)){
-      name=l.replace(/[^a-zA-Z0-9äöüÄÖÜß\s&.\-,]/g,'').trim();
-      if(name.length>3)break;
+  const lines=t.split(/\n|  +/).map(l=>l.trim()).filter(l=>l.length>2);
+  const nmM=t.match(/(?:Lieferant|Absender|Von|Firma|Kunde|An)\s*:?\s*([A-ZÄÖÜ][^\n]{3,50})/i);
+  if(nmM)name=nmM[1].trim().slice(0,50);
+  if(!name){
+    const skip=/^(rechnung|invoice|quittung|datum|betreff|bestellung|lieferung|mwst|ust|netto|brutto|gesamt|total|iban|bic|sepa|zahlung|zahlbar|fällig|seite|page|\d)/i;
+    for(const l of lines.slice(0,15)){
+      if(!skip.test(l)&&l.length>3&&l.length<60&&!/^\d/.test(l)){name=l.slice(0,50);break;}
     }
   }
-  if(!name&&lines.length>0)name=lines[0].slice(0,50);
+  if(!name&&lines.length)name=lines[0].slice(0,50);
 
-  // Rechnungsnummer erkennen
+  // ── 7. BESCHREIBUNG ───────────────────────────────────────────────────────
+  let desc='';
+  const skip2=/^(rechnung|invoice|datum|mwst|ust|netto|brutto|gesamt|total|iban|bic|sepa|zahlung|\d{1,2}[.\-\/]\d{1,2})/i;
+  for(const l of lines){
+    if(l.toLowerCase()!==name.toLowerCase()&&!skip2.test(l)&&l.length>5&&l.length<80){desc=l.slice(0,60);break;}
+  }
+  if(!desc)desc=name.slice(0,60)||'Beleg';
+
+  // ── 8. RECHNUNGSNUMMER ────────────────────────────────────────────────────
   let rech='';
   const rechM=t.match(/(?:Rechnungs(?:nummer|nr\.?|\-?nr)|Invoice\s*(?:No\.?|Nr\.?|#))\s*[:\-]?\s*([A-Z0-9\-\/]+)/i);
   if(rechM)rech=rechM[1];
 
-  // Herkunft erkennen
+  // ── 9. HERKUNFT ───────────────────────────────────────────────────────────
   let herk='inland',hint='';
-  if(/VAT|TVA|BTW|IVA|UID|USt-IdNr/i.test(t)&&!/Deutschland|Germany/i.test(t)){herk='eu';hint='EU-Auslandsrechnung — bitte Herkunft prüfen.';mwst=0;}
-  if(/China|USA|UK|United Kingdom|Großbritannien|Japan/i.test(t)){herk='drittland';hint='Drittland-Rechnung — bitte Herkunft und EUSt prüfen.';mwst=0;}
-
-  // Zahlungsbeleg (Finom/Bank) erkennen
-  // PDF.js gibt aus: "...ABSENDER  LuxLumenLED  USt... IBAN... BIC...  EMPFÄNGER  AOK Gesundheitskasse  IBAN..."
-  // EMPFÄNGER steht direkt vor dem Empfänger-Namen (durch Leerzeichen getrennt, aber in einem Block)
-  let desc='';
-  const isZahlungsbeleg=/zahlungsbeleg|created with finom/i.test(t);
-  if(isZahlungsbeleg){
-    // Empfänger: Text nach "EMPFÄNGER" bis zum nächsten IBAN/BIC
-    const empfRx=/EMPF.NGER\s+([^\n]+?)(?:\s+IBAN|\s+BIC|$)/i;
-    const empfM2=t.match(empfRx);
-    if(empfM2){
-      const cand=empfM2[1].trim();
-      if(cand.length>2&&!/^IBAN/i.test(cand)&&!/^BIC/i.test(cand)&&!/^[A-Z]{2}\d{2}/.test(cand)){
-        name=cand.slice(0,50);
-      }
-    }
-    // Beschreibung aus "Beschreibung:" Zeile
-    const beschM=t.match(/Beschreibung:\s*([^\n\r]{5,100})/i);
-    if(beschM)desc=beschM[1].trim().slice(0,80);
-    // MwSt = 0 bei Zahlungsbelegen
-    mwst=0;
+  if(/China|USA|United\s*States|\bUK\b|United\s*Kingdom|Großbritannien|Japan|Kanada|Australien/i.test(t)){
+    herk='drittland';hint='Drittland-Rechnung — bitte Herkunft und EUSt prüfen.';mwst=0;
+  }else if(/\bVAT\b|\bTVA\b|\bBTW\b|\bIVA\b|\bUID\b/i.test(t)&&!/Deutschland|Germany|DE\d{9}/i.test(t)){
+    herk='eu';hint='EU-Auslandsrechnung — bitte Herkunft prüfen.';mwst=0;
   }
-  // Kategorie raten
+
+  // ── 10. KATEGORIE ─────────────────────────────────────────────────────────
   const katMap=[
-    [/werkzeug|maschine|bohrmaschine|säge|flex|schrauber|gerät/i,'Werkzeug & Maschinen'],
-    [/fahrzeug|auto|kfz|reifen|tank|kraftstoff|diesel|benzin|parkhaus|parken/i,'Fahrzeug & Transport'],
-    [/büro|papier|drucker|tinte|porto|brief|stempel|telefon|internet|software|computer|ionos|strato|hosting|domain/i,'Büro & Verwaltung'],
-    [/essen|verpflegung|restaurant|café|brot|getränk|lebensmittel|supermarkt|rewe|edeka|lidl|aldi/i,'Verpflegung'],
-    [/krankenkasse|krankenversicherung|aok|tkk|barmer|dak|ikk|bkk|finanzamt|steuer|sozialversicherung|rentenversicherung|berufsgenossenschaft/i,'Überweisungen & Abgaben'],
+    [/werkzeug|maschine|bohrmaschine|säge|flex|schrauber|gerät|equipment/i,'Werkzeug & Maschinen'],
+    [/fahrzeug|auto|kfz|reifen|tank|kraftstoff|diesel|benzin|parkhaus|parken|maut/i,'Fahrzeug & Transport'],
+    [/büro|papier|drucker|tinte|porto|brief|stempel|telefon|internet|software|computer|ionos|strato|hosting|domain|office/i,'Büro & Verwaltung'],
+    [/essen|verpflegung|restaurant|café|cafe|brot|getränk|lebensmittel|supermarkt|rewe|edeka|lidl|aldi/i,'Verpflegung'],
+    [/krankenkasse|krankenversicherung|aok|tkk|barmer|dak|ikk|bkk|finanzamt|steuer|sozialversicherung|rentenversicherung|berufsgenossenschaft|versicherungsbeitrag/i,'Überweisungen & Abgaben'],
   ];
-  let kat=isZahlungsbeleg?'Überweisungen & Abgaben':'Material & Waren';
-  for(const [rx,k] of katMap){if(rx.test(t)){kat=k;break;}}
+  let kat='Material & Waren';
+  for(const[rx,k]of katMap){if(rx.test(t)){kat=k;break;}}
   if(type!=='bar'&&kat==='Verpflegung')kat='Sonstiges';
   if(type!=='ein'&&kat==='Überweisungen & Abgaben')kat='Sonstiges';
 
-  // Beschreibung (falls nicht schon durch Zahlungsbeleg gesetzt)
-  if(!desc)for(const l of lines){
-    if(l.toLowerCase()!==name.toLowerCase()&&l.length>5&&l.length<80&&!/^\d{1,2}[.\-\/]/.test(l)){
-      desc=l.slice(0,60);break;
-    }
-  }
-  if(!desc)desc=name.slice(0,60)||'Beleg';
-
-  if(type==='ein')return{dat,lief:name,desc,herk,netto,mwst,brutto,kat,hint};
+  if(type==='ein')return{dat,lief:name,desc,herk,netto,mwst,brutto,kat,hint,rech};
   if(type==='aus')return{dat,kund:name,desc,rech,netto,mwst,brutto,stat:'offen'};
   if(type==='bar')return{dat,haend:name,desc,mwst,brutto,kat};
   return{};
