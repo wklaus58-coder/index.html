@@ -1201,9 +1201,25 @@ function parseOcrText(text,type){
   // Zahlungsbeleg (Finom/Bank) erkennen — Empfänger aus "Empfänger:" Zeile lesen
   const isZahlungsbeleg=/zahlungsbeleg|kontoauszug|sepa.?überweisung|created with finom/i.test(t);
   if(isZahlungsbeleg){
-    // Empfänger aus Zeile nach "Empfänger" oder "An" lesen
-    const empfM=t.match(/(?:empfänger|empfaenger|an\s*:)\s*[:\-]?\s*([^\n\r]{3,50})/i);
-    if(empfM&&empfM[1].trim().length>2)name=empfM[1].trim();
+    // Empfänger: Zeile finden — aber IBAN/BIC-Zeilen überspringen
+    const tLines=t.split(/[\n\r]+/).map(l=>l.trim()).filter(l=>l.length>1);
+    for(let i=0;i<tLines.length;i++){
+      if(/empfänger|empfaenger/i.test(tLines[i])){
+        // Nächste nicht-leere Zeile die keine IBAN/BIC ist
+        for(let j=i+1;j<Math.min(i+5,tLines.length);j++){
+          const cand=tLines[j].replace(/empfänger[:\-]?/i,'').trim();
+          if(cand.length>2&&!/^[A-Z]{2}\d{2}[\s\d]+$/.test(cand)&&!/^[A-Z]{6}[A-Z0-9]{2}/.test(cand)&&!/^BIC/i.test(cand)&&!/^IBAN/i.test(cand)){
+            name=cand.slice(0,50);break;
+          }
+        }
+        if(name)break;
+      }
+    }
+    // Fallback: Zeile nach "An:" suchen
+    if(!name){
+      const empfM=t.match(/(?:an\s*:)\s*([^\n\r]{3,50})/i);
+      if(empfM){const c=empfM[1].trim();if(!/^[A-Z]{2}\d/.test(c))name=c.slice(0,50);}
+    }
     // Verwendungszweck als Beschreibung
     const vzM=t.match(/(?:verwendungszweck|betreff|zweck)\s*[:\-]?\s*([^\n\r]{3,80})/i);
     if(vzM)desc=vzM[1].trim().slice(0,60);
