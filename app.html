@@ -54,6 +54,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .slbl{font-size:11px;color:var(--tx3);font-weight:500;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
 .sval{font-size:22px;font-weight:600;letter-spacing:-0.5px;}
 .ssub2{font-size:11px;color:var(--tx3);margin-top:3px;}
+.stat-rows{display:flex;flex-direction:column;gap:5px;margin-top:8px;border-top:1px solid var(--bor);padding-top:8px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;}
+.stat-row-lbl{font-size:13px;font-weight:600;color:#1A1916;}
+.stat-row-val{font-size:13px;font-weight:700;color:#1A1916;font-family:'DM Mono',monospace;}
+.stat-ust{margin-top:14px;}
+.stat-ust-title{font-size:11px;color:var(--tx3);font-weight:500;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
+.ust-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.ust-q{background:var(--bg);border-radius:8px;padding:8px 10px;}
+.ust-q-lbl{font-size:11px;color:var(--tx3);font-weight:500;margin-bottom:2px;}
+.ust-q-val{font-size:13px;font-weight:700;color:#1A1916;font-family:'DM Mono',monospace;}
 .stat.bl{background:var(--bl);border-color:var(--bl);}
 .stat.bl .slbl,.stat.bl .sval,.stat.bl .ssub2{color:white;}
 .uz{border:2px dashed var(--bor2);border-radius:var(--rl);padding:32px 24px;text-align:center;cursor:pointer;transition:all 0.18s;background:var(--sur);margin-bottom:20px;}
@@ -526,11 +536,59 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
     <div class="view active" id="v-dashboard">
       <div class="stitle">Guten Tag! 👋</div>
       <div class="ssub">Hier siehst du alle deine Belege auf einen Blick.</div>
-      <div class="stats">
+      <div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+        <!-- Karte 1: Belege insgesamt -->
         <div class="stat bl"><div class="slbl">Belege insgesamt</div><div class="sval" id="s-tot">0</div><div class="ssub2">Eingang + Ausgang + Bar</div></div>
-        <div class="stat"><div class="slbl">Eingang Netto</div><div class="sval" id="s-en">0,00 €</div><div class="ssub2">Vorsteuer: <span id="s-vs">0,00 €</span></div></div>
-        <div class="stat"><div class="slbl">Ausgang Netto</div><div class="sval" id="s-an">0,00 €</div><div class="ssub2">MwSt: <span id="s-am">0,00 €</span></div></div>
-        <div class="stat"><div class="slbl">Auslandsrechnungen</div><div class="sval" id="s-ausl">0</div><div class="ssub2">EU + Drittland</div></div>
+
+        <!-- Karte 2: Eingang / Ausgang / Bar / Ausland -->
+        <div class="stat">
+          <div class="slbl">Eingangsrechnungen</div>
+          <div class="sval" id="s-ein-brutto">0,00 €</div>
+          <div class="stat-rows">
+            <div class="stat-row"><span class="stat-row-lbl">Brutto</span><span class="stat-row-val" id="s-ein-b">0,00 €</span></div>
+            <div class="stat-row"><span class="stat-row-lbl">Netto</span><span class="stat-row-val" id="s-en">0,00 €</span></div>
+            <div class="stat-row"><span class="stat-row-lbl">Vorsteuer</span><span class="stat-row-val" id="s-vs">0,00 €</span></div>
+          </div>
+          <div class="stat-rows" style="margin-top:12px;">
+            <div class="slbl" style="margin-bottom:4px;">Ausgangsrechnungen</div>
+            <div class="stat-row"><span class="stat-row-lbl">Brutto</span><span class="stat-row-val" id="s-aus-b">0,00 €</span></div>
+            <div class="stat-row"><span class="stat-row-lbl">Netto</span><span class="stat-row-val" id="s-an">0,00 €</span></div>
+            <div class="stat-row"><span class="stat-row-lbl">MwSt</span><span class="stat-row-val" id="s-am">0,00 €</span></div>
+          </div>
+          <div class="stat-rows" style="margin-top:12px;">
+            <div class="slbl" style="margin-bottom:4px;">Bar</div>
+            <div class="stat-row"><span class="stat-row-lbl">Brutto</span><span class="stat-row-val" id="s-bar-b">0,00 €</span></div>
+            <div class="stat-row"><span class="stat-row-lbl">Netto</span><span class="stat-row-val" id="s-bar-n">0,00 €</span></div>
+            <div class="stat-row"><span class="stat-row-lbl">MwSt</span><span class="stat-row-val" id="s-bar-m">0,00 €</span></div>
+          </div>
+          <div class="stat-rows" style="margin-top:12px;">
+            <div class="slbl" style="margin-bottom:4px;">Auslandsrechnungen</div>
+            <div class="stat-row"><span class="stat-row-lbl">Anzahl</span><span class="stat-row-val" id="s-ausl">0</span></div>
+            <div class="stat-row"><span class="stat-row-lbl">Betrag</span><span class="stat-row-val" id="s-ausl-b">0,00 €</span></div>
+          </div>
+        </div>
+
+        <!-- Karte 3: USt Quartale -->
+        <div class="stat">
+          <div class="slbl">Umsatzsteuer (zu zahlen)</div>
+          <div class="sval" id="s-ust-ges">0,00 €</div>
+          <div class="ssub2">MwSt Ausgang − Vorsteuer Eingang</div>
+          <div class="ust-grid" style="margin-top:10px;">
+            <div class="ust-q"><div class="ust-q-lbl">Q1 (Jan–Mär)</div><div class="ust-q-val" id="s-ust-q1">0,00 €</div></div>
+            <div class="ust-q"><div class="ust-q-lbl">Q2 (Apr–Jun)</div><div class="ust-q-val" id="s-ust-q2">0,00 €</div></div>
+            <div class="ust-q"><div class="ust-q-lbl">Q3 (Jul–Sep)</div><div class="ust-q-val" id="s-ust-q3">0,00 €</div></div>
+            <div class="ust-q"><div class="ust-q-lbl">Q4 (Okt–Dez)</div><div class="ust-q-val" id="s-ust-q4">0,00 €</div></div>
+          </div>
+          <div class="stat-rows" style="margin-top:12px;">
+            <div class="slbl" style="margin-bottom:4px;">Vorsteuer (zu erhalten)</div>
+            <div class="ust-grid">
+              <div class="ust-q"><div class="ust-q-lbl">Q1</div><div class="ust-q-val" id="s-vs-q1">0,00 €</div></div>
+              <div class="ust-q"><div class="ust-q-lbl">Q2</div><div class="ust-q-val" id="s-vs-q2">0,00 €</div></div>
+              <div class="ust-q"><div class="ust-q-lbl">Q3</div><div class="ust-q-val" id="s-vs-q3">0,00 €</div></div>
+              <div class="ust-q"><div class="ust-q-lbl">Q4</div><div class="ust-q-val" id="s-vs-q4">0,00 €</div></div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="tc">
         <div class="thead2">
@@ -881,11 +939,44 @@ function th(t,c,lbl){
 function rDash(f){
   if(f)dF=f;
   document.getElementById('s-tot').textContent=D.ein.length+D.aus.length+D.bar.length;
-  document.getElementById('s-en').textContent=f2(D.ein.reduce((s,r)=>s+r.netto,0));
-  document.getElementById('s-vs').textContent=f2(D.ein.filter(r=>r.herk==='inland'&&r.mwst>0).reduce((s,r)=>s+(r.brutto-r.netto),0));
-  document.getElementById('s-an').textContent=f2(D.aus.reduce((s,r)=>s+r.netto,0));
-  document.getElementById('s-am').textContent=f2(D.aus.reduce((s,r)=>s+(r.brutto-r.netto),0));
-  document.getElementById('s-ausl').textContent=D.ein.filter(r=>r.herk!=='inland').length;
+  // Eingangsrechnungen
+  const einBrutto=D.ein.reduce((s,r)=>s+(r.brutto||0),0);
+  const einNetto=D.ein.reduce((s,r)=>s+(r.netto||0),0);
+  const einVorsteuer=D.ein.filter(r=>r.herk==='inland'&&r.mwst>0).reduce((s,r)=>s+((r.brutto||0)-(r.netto||0)),0);
+  document.getElementById('s-ein-brutto').textContent=f2(einBrutto);
+  document.getElementById('s-ein-b').textContent=f2(einBrutto);
+  document.getElementById('s-en').textContent=f2(einNetto);
+  document.getElementById('s-vs').textContent=f2(einVorsteuer);
+  // Ausgangsrechnungen
+  const ausBrutto=D.aus.reduce((s,r)=>s+(r.brutto||0),0);
+  const ausNetto=D.aus.reduce((s,r)=>s+(r.netto||0),0);
+  const ausMwst=D.aus.reduce((s,r)=>s+((r.brutto||0)-(r.netto||0)),0);
+  document.getElementById('s-aus-b').textContent=f2(ausBrutto);
+  document.getElementById('s-an').textContent=f2(ausNetto);
+  document.getElementById('s-am').textContent=f2(ausMwst);
+  // Bar
+  const barBrutto=D.bar.reduce((s,r)=>s+(r.brutto||0),0);
+  const barNetto=D.bar.reduce((s,r)=>s+(r.brutto||0)/(1+(r.mwst||0)/100),0);
+  const barMwst=barBrutto-barNetto;
+  document.getElementById('s-bar-b').textContent=f2(barBrutto);
+  document.getElementById('s-bar-n').textContent=f2(barNetto);
+  document.getElementById('s-bar-m').textContent=f2(barMwst);
+  // Auslandsrechnungen
+  const auslRech=D.ein.filter(r=>r.herk!=='inland');
+  document.getElementById('s-ausl').textContent=auslRech.length;
+  document.getElementById('s-ausl-b').textContent=f2(auslRech.reduce((s,r)=>s+(r.brutto||0),0));
+  // USt gesamt
+  const ustGes=ausMwst-einVorsteuer;
+  document.getElementById('s-ust-ges').textContent=f2(ustGes);
+  // Hilfsfunktion: Quartal aus Datum TT.MM.JJJJ
+  const getQ=dat=>{if(!dat)return 0;const p=dat.split('.');if(p.length<2)return 0;const m=parseInt(p[1]);return m<=3?1:m<=6?2:m<=9?3:4;};
+  // USt pro Quartal (MwSt Ausgang - Vorsteuer Eingang)
+  for(let q=1;q<=4;q++){
+    const ustAus=D.aus.filter(r=>getQ(r.dat)===q).reduce((s,r)=>s+((r.brutto||0)-(r.netto||0)),0);
+    const vstEin=D.ein.filter(r=>getQ(r.dat)===q&&r.herk==='inland'&&r.mwst>0).reduce((s,r)=>s+((r.brutto||0)-(r.netto||0)),0);
+    document.getElementById('s-ust-q'+q).textContent=f2(ustAus-vstEin);
+    document.getElementById('s-vs-q'+q).textContent=f2(vstEin);
+  }
   let rows=[];
   if(dF==='alle'||dF==='eingang')D.ein.forEach(r=>rows.push({...r,art:'ein',nm:r.lief}));
   if(dF==='alle'||dF==='ausgang')D.aus.forEach(r=>rows.push({...r,art:'aus',nm:r.kund,herk:'inland',kat:'Ausgangsrechnung'}));
@@ -1041,9 +1132,18 @@ kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwa
 {"dat":"TT.MM.JJJJ","kund":"Kunde","desc":"Beschreibung","rech":"Rechnungsnr","netto":0.00,"mwst":${mwstStd},"brutto":0.00,"stat":"offen"}
 WICHTIG: kund = der EMPFÄNGER der Rechnung (die Firma/Person AN DIE die Rechnung geht). NICHT der Aussteller.
 ${mwstInfo}. Lies den tatsächlichen MwSt-Satz von der Rechnung!`,
-    bar:`Lies diesen Kassenbon aus. Antworte NUR mit JSON ohne Backticks:
-{"dat":"TT.MM.JJJJ","haend":"Händler","desc":"Was wurde gekauft","mwst":${mwstStd},"brutto":0.00,"kat":"Material & Waren"}
-${mwstInfo}. Lies den tatsächlichen MwSt-Satz vom Bon!
+    bar:`Analysiere diesen Beleg. Bestimme zuerst den Belegtyp.
+Antworte NUR mit JSON ohne Backticks:
+
+Falls es ein echter Kassenbon (Barausgabe) ist:
+{"typ":"bar","dat":"TT.MM.JJJJ","haend":"Händler","desc":"Was wurde gekauft","mwst":${mwstStd},"brutto":0.00,"kat":"Material & Waren"}
+
+Falls es eine Rechnung, Banküberweisung, Lastschrift, Zahlungsbeleg oder sonstige Ausgabe (NICHT Kassenbon) ist:
+{"typ":"ein","dat":"TT.MM.JJJJ","lief":"Lieferant/Empfänger","desc":"max 60 Zeichen","herk":"inland","netto":0.00,"mwst":0,"brutto":0.00,"kat":"Sonstiges","hint":""}
+
+typ: bar=Kassenbon, ein=Rechnung/Überweisung/Lastschrift/Zahlungsbeleg
+herk: inland=Inland, eu=EU-Ausland, drittland=China/USA/UK etc.
+${mwstInfo}. Lies den tatsächlichen MwSt-Satz!
 kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwaltung, Verpflegung, Sonstiges`
   };
   try{
@@ -1068,11 +1168,30 @@ kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwa
       showAlert('Beleg nicht eingetragen — mögliches Duplikat.','am');
       return;
     }
-    D[type].push(p);
+    // Auto-Routing: wenn Bar-Upload aber Claude erkennt es als Eingangsrechnung
+    let actualType=type;
+    if(type==='bar'&&p.typ==='ein'){
+      actualType='ein';
+      // Felder für Eingangsrechnung sicherstellen
+      if(!p.lief)p.lief=p.haend||p.desc||'Unbekannt';
+      if(!p.herk)p.herk='inland';
+      if(p.mwst===undefined)p.mwst=0;
+      if(!p.netto)p.netto=p.brutto||0;
+      if(!p.kat)p.kat='Sonstiges';
+      if(!p.hint)p.hint='';
+      delete p.haend;delete p.typ;
+    } else {
+      delete p.typ;
+    }
+    D[actualType].push(p);
     autoSave();
-    if(type==='ein'){rEin();if(p.herk!=='inland')showAlert(`Auslandsrechnung erkannt! ${p.hint}`,'am');}
-    if(type==='aus')rAus();
-    if(type==='bar')rBar();
+    if(actualType==='ein'){
+      rEin();
+      if(type==='bar')showAlert(`↪ Beleg als Eingangsrechnung eingetragen (keine Barausgabe).`,'gn');
+      else if(p.herk!=='inland')showAlert(`Auslandsrechnung erkannt! ${p.hint}`,'am');
+    }
+    if(actualType==='aus')rAus();
+    if(actualType==='bar')rBar();
     rDash();
     showAlert(`✓ "${p.lief||p.kund||p.haend}" wurde eingetragen!`,'gn');
   }catch(err){
