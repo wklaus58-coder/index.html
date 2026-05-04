@@ -624,8 +624,8 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
 
     <!-- BAR -->
     <div class="view" id="v-bar">
-      <div class="stitle">🧾 Barbelege, Quittungen & Überweisungen</div>
-      <div class="ssub">Kassenbons, Tankquittungen, Parkscheine, Krankenkassenbeiträge, Steuervorauszahlungen und alle sonstigen Ausgaben ohne Eingangsrechnung — als PDF hochladen oder manuell eintragen.</div>
+      <div class="stitle">🧾 Barbelege & Quittungen</div>
+      <div class="ssub">Kassenbons, Tankquittungen, Parkscheine und bare Ausgaben — als PDF hochladen oder manuell eintragen.<br><span style="font-size:12px;color:var(--am)">⚠ Krankenkassenbeiträge, Steuervorauszahlungen und Überweisungen bitte unter <strong>Eingangsrechnungen</strong> mit Kategorie „Überweisungen &amp; Abgaben“ eintragen.</span></div>
       <div class="uz" id="uzB" onclick="document.getElementById('fiB').click()">
         <div class="uemoji">🧾</div>
         <div class="utitle">Kassenbon oder Quittung als PDF hier ablegen oder klicken</div>
@@ -782,7 +782,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
       <div class="fgp full"><label class="flbl">Was wurde gekauft?</label><input class="fi" id="bDsc" placeholder="z.B. Kabelbinder, Kaffee..."></div>
       <div class="fgp"><label class="flbl">Mehrwertsteuer</label><div style="display:flex;gap:6px;align-items:center;"><select class="fi" id="bMw" onchange="onMwChange('bMw','bMwCustom')"></select><input class="fi" id="bMwCustom" type="number" min="0" max="100" step="0.1" placeholder="%" style="width:70px;display:none;"></div></div>
       <div class="fgp"><label class="flbl">Betrag (€)</label><input class="fi" id="bBr" type="number" step="0.01" placeholder="0.00"></div>
-      <div class="fgp"><label class="flbl">Kategorie</label><select class="fi" id="bKt"><option>Material &amp; Waren</option><option>Werkzeug &amp; Maschinen</option><option>Fahrzeug &amp; Transport</option><option>Büro &amp; Verwaltung</option><option>Verpflegung</option><option>Überweisungen &amp; Abgaben</option><option>Sonstiges</option></select></div>
+      <div class="fgp"><label class="flbl">Kategorie</label><select class="fi" id="bKt"><option>Material &amp; Waren</option><option>Werkzeug &amp; Maschinen</option><option>Fahrzeug &amp; Transport</option><option>Büro &amp; Verwaltung</option><option>Verpflegung</option><option>Sonstiges</option></select></div>
       <div class="fgp full"><label class="flbl">Buchungstext (für Steuerberater)</label><input class="fi" id="bBt" placeholder="z.B. Diesel &amp; Wäsche, Büromaterial..."></div>
     </div>
     <div class="mf"><button class="btn" onclick="closeOv('mBar')">Abbrechen</button><button class="btn btn-bl" onclick="saveFrm('bar')">Eintragen</button></div>
@@ -1078,7 +1078,7 @@ ${mwstInfo}. Lies den tatsächlichen MwSt-Satz von der Rechnung!`,
     bar:`Lies diesen Kassenbon aus. Antworte NUR mit JSON ohne Backticks:
 {"dat":"TT.MM.JJJJ","haend":"Händler","desc":"Was wurde gekauft","mwst":${mwstStd},"brutto":0.00,"kat":"Material & Waren"}
 ${mwstInfo}. Lies den tatsächlichen MwSt-Satz vom Bon!
-kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwaltung, Verpflegung, Überweisungen & Abgaben, Sonstiges`
+kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwaltung, Verpflegung, Sonstiges`
   };
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
