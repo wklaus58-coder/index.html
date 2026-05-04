@@ -93,6 +93,9 @@ tbody tr:hover td{background:var(--bg);}
 .b-pu{background:var(--pu2);color:var(--pu);}
 .b-gr{background:#EDEAE3;color:var(--tx2);}
 .b-rd2c{background:#FEE2E2;color:#B91C1C;}
+.sel-cb{width:15px;height:15px;cursor:pointer;accent-color:var(--bl);}
+.bulk-bar{display:none;align-items:center;gap:10px;padding:8px 14px;background:var(--rd2);border-radius:var(--r);font-size:13px;color:var(--rd);border:1px solid rgba(185,28,28,0.2);}
+.bulk-bar.show{display:flex;}
 .tabs{display:flex;background:#EDEAE3;border-radius:var(--r);padding:3px;gap:2px;}
 .tab{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;color:var(--tx2);border:none;background:none;transition:all 0.12s;font-family:'DM Sans',sans-serif;}
 .tab.active{background:var(--sur);color:var(--tx);box-shadow:var(--sh);}
@@ -580,6 +583,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
             </div>
             <button class="btn btn-sm" onclick="openFrm('ein')">+ Manuell</button>
             <button class="btn btn-sm" onclick="druck('pdE')">🖨 Drucken</button>
+            <div class="bulk-bar" id="einBulk"><span id="einSelCnt">0 ausgewählt</span><button class="btn btn-sm" style="background:var(--rd);border-color:var(--rd);color:white" onclick="delSel('ein')">🗑 Auswahl löschen</button><button class="btn btn-sm" onclick="clearSel('ein')">✕ Abbrechen</button></div>
           </div>
         </div>
         <div class="tw"><table>
@@ -604,9 +608,10 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
         <div class="ph"><h2>MIKU-BelegProfi — Ausgangsrechnungen</h2><p>Gedruckt am: <span id="pdA"></span></p></div>
         <div class="thead2 no-print">
           <div class="ttitle">Alle Ausgangsrechnungen</div>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="btn btn-sm" onclick="openFrm('aus')">+ Manuell</button>
             <button class="btn btn-sm" onclick="druck('pdA')">🖨 Drucken</button>
+            <div class="bulk-bar" id="ausBulk"><span id="ausSelCnt">0 ausgewählt</span><button class="btn btn-sm" style="background:var(--rd);border-color:var(--rd);color:white" onclick="delSel('aus')">🗑 Auswahl löschen</button><button class="btn btn-sm" onclick="clearSel('aus')">✕ Abbrechen</button></div>
           </div>
         </div>
         <div class="tw"><table>
@@ -631,9 +636,10 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
         <div class="ph"><h2>MIKU-BelegProfi — Barbelege</h2><p>Gedruckt am: <span id="pdB"></span></p></div>
         <div class="thead2 no-print">
           <div class="ttitle">Alle Barbelege</div>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <button class="btn btn-sm" onclick="openFrm('bar')">+ Manuell</button>
             <button class="btn btn-sm" onclick="druck('pdB')">🖨 Drucken</button>
+            <div class="bulk-bar" id="barBulk"><span id="barSelCnt">0 ausgewählt</span><button class="btn btn-sm" style="background:var(--rd);border-color:var(--rd);color:white" onclick="delSel('bar')">🗑 Auswahl löschen</button><button class="btn btn-sm" onclick="clearSel('bar')">✕ Abbrechen</button></div>
           </div>
         </div>
         <div class="tw"><table>
@@ -909,34 +915,34 @@ function rEin(f){
   if(f)eF=f;
   let rows=eF==='alle'?D.ein:D.ein.filter(r=>r.herk===eF);
   rows=srt(rows,SS.ein.c,SS.ein.d);
-  document.getElementById('eTh').innerHTML=th('ein','dat','Datum')+th('ein','lief','Lieferant')+'<th>Was wurde geliefert?</th>'+th('ein','herk','Herkunft')+th('ein','netto','Netto')+'<th>MwSt</th>'+th('ein','brutto','Brutto')+th('ein','kat','Kategorie')+'<th></th>';
+  document.getElementById('eTh').innerHTML='<th style="width:32px"></th>'+th('ein','dat','Datum')+th('ein','lief','Lieferant')+'<th>Was wurde geliefert?</th>'+th('ein','herk','Herkunft')+th('ein','netto','Netto')+'<th>MwSt</th>'+th('ein','brutto','Brutto')+th('ein','kat','Kategorie')+'<th></th>';
   const tb=document.getElementById('eTb');
-  if(!rows.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="ei">📥</div><div class="et">Keine Eingangsrechnungen</div><div class="es">Rechnung hochladen oder manuell eintragen</div></div></td></tr>`;document.getElementById('eFt').innerHTML='';return;}
-  tb.innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td class="bold">${r.lief}</td><td class="muted">${r.desc}${r.hint?` <span title="${r.hint}" style="cursor:help;color:var(--am)">⚠</span>`:''}</td><td>${hB(r.herk)}</td><td class="mono">${f2(r.netto)}</td><td>${mL(r)}</td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('ein',${r.id})">✕</button></td></tr>`).join('');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="10"><div class="empty"><div class="ei">📥</div><div class="et">Keine Eingangsrechnungen</div><div class="es">Rechnung hochladen oder manuell eintragen</div></div></td></tr>`;document.getElementById('eFt').innerHTML='';return;}
+  tb.innerHTML=rows.map(r=>`<tr><td style="text-align:center"><input type="checkbox" class="sel-cb" ${SEL.ein.has(r.id)?'checked':''} onchange="togSel('ein',${r.id},this)"></td><td class="mono">${r.dat}</td><td class="bold">${r.lief}</td><td class="muted">${r.desc}${r.hint?` <span title="${r.hint}" style="cursor:help;color:var(--am)">⚠</span>`:''}</td><td>${hB(r.herk)}</td><td class="mono">${f2(r.netto)}</td><td>${mL(r)}</td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('ein',${r.id})">✕</button></td></tr>`).join('');
   const tn=rows.reduce((s,r)=>s+r.netto,0),tb2=rows.reduce((s,r)=>s+r.brutto,0);
-  document.getElementById('eFt').innerHTML=`<tr class="tr-total"><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt ${rows.length} Belege</td><td class="mono">${f2(tn)}</td><td></td><td class="mono">${f2(tb2)}</td><td colspan="2"></td></tr>`;
+  document.getElementById('eFt').innerHTML=`<tr class="tr-total"><td></td><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt ${rows.length} Belege</td><td class="mono">${f2(tn)}</td><td></td><td class="mono">${f2(tb2)}</td><td colspan="2"></td></tr>`;
 }
 function eTab(f,el){document.querySelectorAll('#v-eingang .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');rEin(f);}
 
 // ── AUSGANG ───────────────────────────────────────────────────────────────────
 function rAus(){
   let rows=srt(D.aus,SS.aus.c,SS.aus.d);
-  document.getElementById('aTh').innerHTML=th('aus','dat','Datum')+th('aus','kund','Kunde')+'<th>Beschreibung</th>'+th('aus','rech','Rech.-Nr.')+th('aus','netto','Netto')+'<th>MwSt</th>'+th('aus','brutto','Brutto')+th('aus','stat','Status')+'<th></th>';
+  document.getElementById('aTh').innerHTML='<th style="width:32px"></th>'+th('aus','dat','Datum')+th('aus','kund','Kunde')+'<th>Beschreibung</th>'+th('aus','rech','Rech.-Nr.')+th('aus','netto','Netto')+'<th>MwSt</th>'+th('aus','brutto','Brutto')+th('aus','stat','Status')+'<th></th>';
   const tb=document.getElementById('aTb');
-  if(!rows.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="ei">📤</div><div class="et">Keine Ausgangsrechnungen</div></div></td></tr>`;document.getElementById('aFt').innerHTML='';return;}
-  tb.innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td class="bold">${r.kund}</td><td class="muted">${r.desc}</td><td class="mono" style="min-width:120px;font-size:12px">${r.rech}</td><td class="mono">${f2(r.netto)}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-r.netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${stB(r.stat)}</td><td><button class="del-btn" onclick="del('aus',${r.id})">✕</button></td></tr>`).join('');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="10"><div class="empty"><div class="ei">📤</div><div class="et">Keine Ausgangsrechnungen</div></div></td></tr>`;document.getElementById('aFt').innerHTML='';return;}
+  tb.innerHTML=rows.map(r=>`<tr><td style="text-align:center"><input type="checkbox" class="sel-cb" ${SEL.aus.has(r.id)?'checked':''} onchange="togSel('aus',${r.id},this)"></td><td class="mono">${r.dat}</td><td class="bold">${r.kund}</td><td class="muted">${r.desc}</td><td class="mono" style="min-width:120px;font-size:12px">${r.rech}</td><td class="mono">${f2(r.netto)}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-r.netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${stB(r.stat)}</td><td><button class="del-btn" onclick="del('aus',${r.id})">✕</button></td></tr>`).join('');
   const tn=rows.reduce((s,r)=>s+r.netto,0),tb2=rows.reduce((s,r)=>s+r.brutto,0);
-  document.getElementById('aFt').innerHTML=`<tr class="tr-total"><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(tn)}</td><td></td><td class="mono">${f2(tb2)}</td><td colspan="2"></td></tr>`;
+  document.getElementById('aFt').innerHTML=`<tr class="tr-total"><td></td><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(tn)}</td><td></td><td class="mono">${f2(tb2)}</td><td colspan="2"></td></tr>`;
 }
 
 // ── BAR ───────────────────────────────────────────────────────────────────────
 function rBar(){
   let rows=srt(D.bar,SS.bar.c,SS.bar.d);
-  document.getElementById('bTh').innerHTML=th('bar','dat','Datum')+th('bar','haend','Händler')+'<th>Was wurde gekauft?</th>'+th('bar','mwst','MwSt')+th('bar','brutto','Betrag')+th('bar','kat','Kategorie')+'<th></th>';
+  document.getElementById('bTh').innerHTML='<th style="width:32px"></th>'+th('bar','dat','Datum')+th('bar','haend','Händler')+'<th>Was wurde gekauft?</th>'+th('bar','mwst','MwSt')+th('bar','brutto','Betrag')+th('bar','kat','Kategorie')+'<th></th>';
   const tb=document.getElementById('bTb');
-  if(!rows.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="ei">🧾</div><div class="et">Keine Barbelege</div></div></td></tr>`;document.getElementById('bFt').innerHTML='';return;}
-  tb.innerHTML=rows.map(r=>{const netto=+(r.brutto/(1+r.mwst/100)).toFixed(2);return`<tr><td class="mono">${r.dat}</td><td class="bold">${r.haend}</td><td class="muted">${r.desc}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('bar',${r.id})">✕</button></td></tr>`;}).join('');
-  document.getElementById('bFt').innerHTML=`<tr class="tr-total"><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(D.bar.reduce((s,r)=>s+r.brutto,0))}</td><td colspan="2"></td></tr>`;
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei">🧾</div><div class="et">Keine Barbelege</div></div></td></tr>`;document.getElementById('bFt').innerHTML='';return;}
+  tb.innerHTML=rows.map(r=>{const netto=+(r.brutto/(1+r.mwst/100)).toFixed(2);return`<tr><td style="text-align:center"><input type="checkbox" class="sel-cb" ${SEL.bar.has(r.id)?'checked':''} onchange="togSel('bar',${r.id},this)"></td><td class="mono">${r.dat}</td><td class="bold">${r.haend}</td><td class="muted">${r.desc}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('bar',${r.id})">✕</button></td></tr>`;}).join('');
+  document.getElementById('bFt').innerHTML=`<tr class="tr-total"><td></td><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(D.bar.reduce((s,r)=>s+r.brutto,0))}</td><td colspan="2"></td></tr>`;
 }
 
 // ── MANDANTEN ─────────────────────────────────────────────────────────────────
@@ -1011,9 +1017,32 @@ function druck(id){
 }
 
 // ── DELETE ────────────────────────────────────────────────────────────────────
+const SEL={ein:new Set(),aus:new Set(),bar:new Set()};
+function togSel(t,id,cb){
+  if(cb.checked)SEL[t].add(id);else SEL[t].delete(id);
+  const n=SEL[t].size;
+  const pfx=t==='ein'?'ein':t==='aus'?'aus':'bar';
+  document.getElementById(pfx+'SelCnt').textContent=n+' ausgewählt';
+  document.getElementById(pfx+'Bulk').classList.toggle('show',n>0);
+}
+function clearSel(t){
+  SEL[t].clear();
+  if(t==='ein')rEin();if(t==='aus')rAus();if(t==='bar')rBar();
+}
+function delSel(t){
+  if(!SEL[t].size)return;
+  if(!confirm(`${SEL[t].size} Beleg(e) wirklich löschen?`))return;
+  D[t]=D[t].filter(r=>!SEL[t].has(r.id));
+  SEL[t].clear();
+  autoSave();
+  if(t==='ein')rEin();if(t==='aus')rAus();if(t==='bar')rBar();rDash();
+  showAlert('Belege wurden gelöscht.','gn');
+}
 function del(t,id){
   if(!confirm('Diesen Beleg wirklich löschen?'))return;
   D[t]=D[t].filter(r=>r.id!==id);
+  SEL[t].delete(id);
+  autoSave();
   if(t==='ein')rEin();if(t==='aus')rAus();if(t==='bar')rBar();rDash();
 }
 
@@ -1164,6 +1193,7 @@ function saveFrm(type){
     entry.zahl='bar';
     D.bar.push(entry);rBar();
   }
+  autoSave();
   rDash();
   closeOv(type==='ein'?'mEin':type==='aus'?'mAus':'mBar');
   showAlert('Beleg wurde eingetragen!','gn');
