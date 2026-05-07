@@ -210,7 +210,6 @@ tbody tr:hover td{background:var(--bg);}
 .prv-warn{background:#FEF3E2;border:2px solid rgba(146,82,10,0.3);border-radius:10px;padding:16px 18px;margin:16px 0;}
 .prv-warn p{color:#5a3000;font-size:15px;font-weight:600;margin:0;line-height:1.8;}
 .prv-footer{padding:22px 36px;border-top:2px solid #e0e0e0;flex-shrink:0;background:#f8f8f8;border-radius:0 0 18px 18px;}
-.prv-costs{display:block;font-size:13px;font-weight:700;color:#92520A;margin-top:6px;}
 .prv-checks{display:flex;flex-direction:column;gap:14px;margin-bottom:20px;}
 .prv-check{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:#fff;border:2px solid #ccc;border-radius:10px;cursor:pointer;transition:border-color 0.15s;}
 .prv-check:hover{border-color:#1B4FD8;}
@@ -426,26 +425,26 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
       <p><strong>Stand: 5. Mai 2026</strong></p>
 
       <h3>1. Verantwortlicher</h3>
+      <p>Verantwortlicher für die Datenverarbeitung im Zusammenhang mit der Bereitstellung von „MIKU-BelegProfi" ist:</p>
       <p><strong>MIKU-Marketing · Klaus Winkler</strong><br>
-      Rua Manuel de Arriaga No. 120-1B, 8365-101 Armação de Pêra, Portugal<br>
+      Rua Manuel de Arriaga No. 120-1B<br>
+      8365-101 Armação de Pêra, Portugal<br>
       E-Mail: <a href="mailto:info@miku-marketing.com">info@miku-marketing.com</a><br>
       Website: <a href="https://miku-marketing.de" target="_blank">miku-marketing.de</a></p>
 
       <h3>2. Allgemeines zur App</h3>
-      <p>MIKU-BelegProfi ist eine lokal ausführbare Browser-Anwendung zur Unterstützung bei der Erfassung und Verarbeitung von Buchhaltungsbelegen. Die App wird als einzelne HTML-Datei bereitgestellt und läuft grundsätzlich lokal im Browser des Nutzers.</p>
-      <p>Soweit die App lokal genutzt wird, speichert sie eingegebene Daten und Einstellungen grundsätzlich nur im Browser-Speicher des vom Nutzer verwendeten Endgeräts (insbesondere localStorage). Eine Übermittlung dieser lokal gespeicherten Daten an uns findet dabei nicht statt.</p>
+      <p>„MIKU-BelegProfi" ist eine lokal ausführbare Browser-Anwendung zur Unterstützung bei der Erfassung und Verarbeitung von Buchhaltungsbelegen. Die App wird als einzelne HTML-Datei bereitgestellt und läuft grundsätzlich lokal im Browser des Nutzers.</p>
+      <p>Soweit die App lokal genutzt wird, speichert sie eingegebene Daten und Einstellungen grundsätzlich nur im Browser-Speicher des vom Nutzer verwendeten Endgeräts, insbesondere localStorage. Eine Übermittlung dieser lokal gespeicherten Daten an uns findet dabei nicht statt.</p>
 
       <h3>3. Lokale Speicherung im Browser</h3>
-      <p>Die App speichert vom Nutzer eingegebene Daten, Einstellungen und Arbeitszustände lokal im Browser des Nutzers.</p>
-      <p><strong>Zweck:</strong> Bereitstellung der Kernfunktionen, Speicherung von Arbeitsständen.<br>
+      <p>Die App speichert vom Nutzer eingegebene Daten, Einstellungen und Arbeitszustände lokal im Browser des Nutzers, damit die vom Nutzer ausdrücklich gewünschten Funktionen der App bereitgestellt werden können.</p>
+      <p><strong>Zweck:</strong> Bereitstellung der Kernfunktionen, Speicherung von Arbeitsständen und app-notwendigen Einstellungen.<br>
       <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO; § 25 Abs. 2 Nr. 2 TDDDG.<br>
       <strong>Speicherdauer:</strong> Bis zur Löschung durch den Nutzer im Browser.</p>
 
       <h3>4. Optionale KI-Funktion über Anthropic</h3>
-      <p>Die App bietet optional die Möglichkeit, Rechnungen mit Hilfe eines KI-Dienstes von Anthropic PBC, USA, auszulesen. Diese Funktion ist <strong>freiwillig und standardmäßig deaktiviert</strong>.</p>
-      <div class="prv-warn">
-        <p><strong>⚠ Wichtig:</strong> Bei Nutzung der KI-Funktion werden Belegdaten an Anthropic PBC in den USA übertragen. Anthropic gibt an, API-Eingaben und -Ausgaben grundsätzlich innerhalb von 30 Tagen zu löschen. Die KI-Funktion darf nur genutzt werden, wenn eine ausreichende datenschutzrechtliche Grundlage für die Übermittlung besteht.</p>
-      </div>
+      <p>Die App bietet optional die Möglichkeit, Rechnungen mit Hilfe eines KI-Dienstes von Anthropic PBC, USA, auszulesen. Diese Funktion ist freiwillig und standardmäßig deaktiviert.</p>
+      <p>⚠ <strong>Wichtig:</strong> Bei Nutzung der KI-Funktion werden Belegdaten an Anthropic PBC in den USA übertragen. Anthropic gibt an, API-Eingaben und -Ausgaben grundsätzlich innerhalb von 30 Tagen zu löschen. Die KI-Funktion darf nur genutzt werden, wenn eine ausreichende datenschutzrechtliche Grundlage für die Übermittlung besteht.</p>
 
       <h3>5. Datenschutzrechtliche Rolle bei der KI-Funktion</h3>
       <p>Die optionale KI-Funktion wird nur aktiviert, wenn der Nutzer dieser Funktion ausdrücklich zustimmt oder sie aktiv einschaltet. Bei Nutzung der KI-Funktion werden die hierfür erforderlichen Beleg- oder Rechnungsdaten an Anthropic PBC übermittelt.</p>
@@ -454,7 +453,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
 
       <h3>6. Drittlandübermittlung</h3>
       <p>Bei Nutzung der optionalen KI-Funktion kann eine Übermittlung personenbezogener Daten an Anthropic PBC in den USA erfolgen. Für kommerzielle API-Nutzungen stellt Anthropic nach eigenen Angaben ein Data Processing Addendum einschließlich EU-Standardvertragsklauseln bereit, das in die Commercial Terms eingebunden ist.</p>
-      <p>Eine Übermittlung in die USA erfolgt nur, soweit hierfür eine geeignete datenschutzrechtliche Grundlage besteht.</p>
+      <p>Eine Übermittlung in die USA erfolgt nur, soweit hierfür eine geeignete datenschutzrechtliche Grundlage besteht. Nutzer werden vor Aktivierung der KI-Funktion über die Drittlandübermittlung informiert.</p>
 
       <h3>7. Hinweise zur datenschutzkonformen Nutzung</h3>
       <p>Nutzer sollten bei Verwendung der KI-Funktion insbesondere folgende Punkte beachten:</p>
@@ -467,30 +466,29 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
       </ul>
 
       <h3>8. Bereitstellung der App / Website / Download</h3>
-      <p>Beim Aufruf unserer Website oder Download-Seite werden technisch erforderliche Verbindungsdaten verarbeitet.</p>
-      <p><strong>Empfänger</strong> können insbesondere unser Hostinganbieter IONOS SE, Deutschland, sowie GitHub, Inc., USA sein.<br>
-      <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO.<br>
-      <strong>Speicherdauer:</strong> Server-Logdaten werden in der Regel für 7 bis 30 Tage gespeichert.</p>
+      <p>Beim Aufruf unserer Website oder Download-Seite werden technisch erforderliche Verbindungsdaten verarbeitet, insbesondere IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Datei oder Seite, übertragene Datenmenge, Browser- und Betriebssysteminformationen sowie Referrer-URL.</p>
+      <p>Empfänger können insbesondere unser Hostinganbieter IONOS SE, Deutschland, sowie GitHub, Inc., USA, sein, soweit der Download oder die Bereitstellung über GitHub Pages erfolgt.</p>
+      <p><strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO.<br>
+      <strong>Speicherdauer:</strong> Server-Logdaten werden in der Regel für 7 bis 30 Tage gespeichert und anschließend gelöscht oder anonymisiert.</p>
 
       <h3>9. Kontaktaufnahme</h3>
-      <p>Bei E-Mail-Kontakt verarbeiten wir die übermittelten Angaben zur Bearbeitung der Anfrage.<br>
-      <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b bzw. lit. f DSGVO.</p>
+      <p>Bei E-Mail-Kontakt verarbeiten wir die übermittelten Angaben zur Bearbeitung der Anfrage. Rechtsgrundlage: Art. 6 Abs. 1 lit. b bzw. lit. f DSGVO.</p>
 
       <h3>10. Verkauf und Abrechnung</h3>
-      <p>Zahlungen werden über PayPal abgewickelt. Anbieter ist PayPal (Europe) S.à r.l. et Cie, S.C.A., Luxemburg.<br>
-      <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragsabwicklung) sowie Art. 6 Abs. 1 lit. c DSGVO (gesetzliche Aufbewahrungspflichten).<br>
+      <p>Wenn ein Kauf erfolgt, werden Zahlungs- und Abrechnungsdaten zur Vertragsabwicklung verarbeitet. Zahlungen werden über PayPal abgewickelt. Anbieter ist PayPal (Europe) S.à r.l. et Cie, S.C.A., Luxemburg.</p>
+      <p><strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragsabwicklung) sowie Art. 6 Abs. 1 lit. c DSGVO (gesetzliche Aufbewahrungspflichten).<br>
       <strong>Speicherdauer:</strong> Abrechnungs- und steuerrelevante Daten bis zu 10 Jahre.</p>
 
       <h3>11. Betroffenenrechte</h3>
-      <p>Sie haben das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20) sowie Widerspruch (Art. 21 DSGVO). Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen.</p>
-      <p><strong>Beschwerderecht bei:</strong> Comissão Nacional de Proteção de Dados (CNPD), Portugal.</p>
+      <p>Sie haben das Recht auf Auskunft gemäß Art. 15 DSGVO, Berichtigung gemäß Art. 16 DSGVO, Löschung gemäß Art. 17 DSGVO, Einschränkung der Verarbeitung gemäß Art. 18 DSGVO, Datenübertragbarkeit gemäß Art. 20 DSGVO sowie Widerspruch gemäß Art. 21 DSGVO. Soweit eine Verarbeitung auf einer Einwilligung beruht, können Sie diese Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen.</p>
+      <p>Außerdem haben Sie das Recht, sich bei einer Datenschutzaufsichtsbehörde zu beschweren. Zuständige Aufsichtsbehörde ist grundsätzlich die <strong>Comissão Nacional de Proteção de Dados (CNPD)</strong>, Portugal.</p>
 
       <h3>12. Automatisierte Entscheidungsfindung</h3>
       <p>Eine automatisierte Entscheidungsfindung im Sinne von Art. 22 DSGVO findet durch uns nicht statt.</p>
 
       <h3>13. Änderungen dieser Datenschutzerklärung</h3>
       <p>Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf anzupassen. Die aktuelle Fassung ist in der App abrufbar.</p>
-    </div>
+</div>
     <div class="prv-footer">
       <div class="prv-consent-box">
         <div class="prv-option prv-option-ki" onclick="acceptPrivacyKI()">
@@ -498,7 +496,6 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
           <div class="prv-option-text">
             <strong>Zustimmen &amp; KI-Automatik nutzen</strong>
             <span>Ich willige ein, dass die für die KI-Auswertung erforderlichen Belegdaten an Anthropic übermittelt und dort zur automatisierten Auswertung verarbeitet werden.</span>
-            <span class="prv-costs">🔥 Kosten: ca. 0,01 – 0,03 € pro Beleg</span>
           </div>
         </div>
         <div class="prv-option prv-option-lokal" onclick="acceptPrivacyLokal()">
@@ -748,7 +745,47 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
 </div>
 </div>
 
-
+<!-- SETUP -->
+<div class="setup" id="setupScr">
+  <div class="scard">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:40px;margin-bottom:10px;">👋</div>
+      <div style="font-size:22px;font-weight:600;margin-bottom:5px;">Willkommen bei MIKU-BelegProfi!</div>
+      <div style="font-size:13px;color:var(--tx2);">Einmalige Einrichtung — danach einfach loslegen</div>
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="slbl2"><div class="snum">1</div> Dein Name</div>
+      <input class="fi" id="sName" placeholder="z.B. Max Mustermann">
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="slbl2"><div class="snum">2</div> Beruf oder Firma</div>
+      <input class="fi" id="sBeruf" placeholder="z.B. Elektriker · Mustermann">
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="slbl2"><div class="snum">3</div> Land / MwSt-Sätze</div>
+      <select class="fi" id="sLand" onchange="applyLand(this.value)">
+        <option value="de">🇩🇪 Deutschland (0%, 7%, 19%)</option>
+        <option value="at">🇦🇹 Österreich (0%, 10%, 13%, 20%)</option>
+        <option value="ch">🇨🇭 Schweiz (0%, 2,6%, 3,8%, 8,1%)</option>
+        <option value="custom">⚙️ Benutzerdefiniert</option>
+      </select>
+      <div id="customRates" style="display:none;margin-top:8px;background:var(--bg);border-radius:var(--r);padding:12px;font-size:13px;">
+        <div style="margin-bottom:6px;color:var(--tx2);">Eigene Sätze eingeben (kommagetrennt, z.B. <strong>0,5,12,21</strong>):</div>
+        <input class="fi" id="customRateInput" placeholder="0,5,12,21" style="font-size:13px;">
+      </div>
+    </div>
+    <div style="margin-bottom:8px;">
+      <div class="aguide" style="background:var(--gn2);border:1px solid rgba(15,110,58,0.2);">
+        <strong>🔒 100% lokal &amp; kostenlos</strong><br>
+        Die App liest deine Belege direkt in deinem Browser aus — kein API-Key, keine Cloud, keine Kosten. Deine Daten verlassen niemals deinen Computer.
+      </div>
+    </div>
+    <button class="btn btn-bl btn-lg" style="width:100%;margin-top:16px;" onclick="saveSetup()">Einrichtung abschließen →</button>
+    <div style="text-align:center;margin-top:12px;">
+      <span style="font-size:12px;color:var(--tx3);cursor:pointer;text-decoration:underline;" onclick="skipSetup()">Einrichtung überspringen — ich trage alles manuell ein</span>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL EINGANG -->
 <div class="ov" id="mEin" onclick="closeOv('mEin',event)">
@@ -1507,6 +1544,30 @@ function applyUser(name,beruf,key){
   document.getElementById('kiOn').style.display=kiActive?'flex':'none';
   document.getElementById('kiOff').style.display=kiActive?'none':'flex';
 }
+function saveSetup(){
+  const name=document.getElementById('sName').value.trim();
+  if(!name){document.getElementById('sName').focus();showAlert('Bitte deinen Namen eingeben.','rd');return;}
+  const beruf=document.getElementById('sBeruf').value.trim();
+
+  const land=document.getElementById('sLand')?.value||'de';
+  localStorage.setItem('bp_n',name);localStorage.setItem('bp_b',beruf);
+  localStorage.setItem('bp_setup_done','1');
+  localStorage.setItem('bp_land',land);
+  if(land==='custom'){
+    const raw=document.getElementById('customRateInput')?.value||'';
+    if(raw)localStorage.setItem('bp_custom_rates',raw);
+  }
+  applyUser(name,beruf);
+  document.getElementById('setupScr').style.display='none';
+  showAlert(`Willkommen ${name}! MIKU-BelegProfi ist bereit.`,'gn');
+}
+function skipSetup(){
+  const name=document.getElementById('sName').value.trim()||'Handwerker';
+  localStorage.setItem('bp_n',name);
+  localStorage.setItem('bp_setup_done','1');
+  applyUser(name,'','');
+  document.getElementById('setupScr').style.display='none';
+}
 function revokeKI(){
   localStorage.removeItem('bp_ki_consent');
   KEY='';
@@ -1696,6 +1757,7 @@ function acceptPrivacyLokal(){
 }
 function startApp(){
   const n=localStorage.getItem('bp_n'),b=localStorage.getItem('bp_b')||'',k=localStorage.getItem('bp_k')||'';
+  const setupDone=localStorage.getItem('bp_setup_done');
   // Init MwSt dropdowns
   const land=localStorage.getItem('bp_land')||'de';
   currentLand=land;
@@ -1706,7 +1768,10 @@ function startApp(){
   } else {
     fillMwDropdowns(MWST_RATES[land]||MWST_RATES.de);
   }
-  applyUser(n||'Handwerker',b,k);
+  if(n&&setupDone){
+    applyUser(n,b,k);
+    document.getElementById('setupScr').style.display='none';
+  }
   try{
     const saved=localStorage.getItem('bp_data');
     if(saved){
