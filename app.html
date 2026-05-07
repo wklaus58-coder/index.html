@@ -210,6 +210,7 @@ tbody tr:hover td{background:var(--bg);}
 .prv-warn{background:#FEF3E2;border:2px solid rgba(146,82,10,0.3);border-radius:10px;padding:16px 18px;margin:16px 0;}
 .prv-warn p{color:#5a3000;font-size:15px;font-weight:600;margin:0;line-height:1.8;}
 .prv-footer{padding:22px 36px;border-top:2px solid #e0e0e0;flex-shrink:0;background:#f8f8f8;border-radius:0 0 18px 18px;}
+.prv-costs{display:block;font-size:13px;font-weight:700;color:#92520A;margin-top:6px;}
 .prv-checks{display:flex;flex-direction:column;gap:14px;margin-bottom:20px;}
 .prv-check{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:#fff;border:2px solid #ccc;border-radius:10px;cursor:pointer;transition:border-color 0.15s;}
 .prv-check:hover{border-color:#1B4FD8;}
@@ -422,60 +423,67 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
     </div>
     <div class="prv-body">
       <h3>Datenschutzerklärung für „MIKU-BelegProfi"</h3>
-      <p><strong>Stand: 23. April 2026 (Version 3 — finale Fassung)</strong></p>
+      <p><strong>Stand: 5. Mai 2026</strong></p>
 
       <h3>1. Verantwortlicher</h3>
-      <p>Verantwortlicher für die Datenverarbeitung im Zusammenhang mit der Bereitstellung von „MIKU-BelegProfi" ist:</p>
       <p><strong>MIKU-Marketing · Klaus Winkler</strong><br>
-      Rua Manuel de Arriaga No. 120-1B<br>
-      8365-101 Armacao de Pera, Portugal<br>
-      E-Mail: <a href="mailto:info@miku-marketing.de">info@miku-marketing.de</a><br>
+      Rua Manuel de Arriaga No. 120-1B, 8365-101 Armação de Pêra, Portugal<br>
+      E-Mail: <a href="mailto:info@miku-marketing.com">info@miku-marketing.com</a><br>
       Website: <a href="https://miku-marketing.de" target="_blank">miku-marketing.de</a></p>
 
       <h3>2. Allgemeines zur App</h3>
-      <p>„MIKU-BelegProfi" ist eine lokal ausführbare Browser-Anwendung zur Unterstützung bei der Erfassung und Verarbeitung von Buchhaltungsbelegen. Die App wird als einzelne HTML-Datei bereitgestellt und läuft grundsätzlich lokal im Browser des Nutzers.</p>
+      <p>MIKU-BelegProfi ist eine lokal ausführbare Browser-Anwendung zur Unterstützung bei der Erfassung und Verarbeitung von Buchhaltungsbelegen. Die App wird als einzelne HTML-Datei bereitgestellt und läuft grundsätzlich lokal im Browser des Nutzers.</p>
       <p>Soweit die App lokal genutzt wird, speichert sie eingegebene Daten und Einstellungen grundsätzlich nur im Browser-Speicher des vom Nutzer verwendeten Endgeräts (insbesondere localStorage). Eine Übermittlung dieser lokal gespeicherten Daten an uns findet dabei nicht statt.</p>
 
       <h3>3. Lokale Speicherung im Browser</h3>
-      <p>Die App speichert vom Nutzer eingegebene Daten, Einstellungen und Arbeitszustände lokal im Browser des Nutzers, damit die vom Nutzer ausdrücklich gewünschten Funktionen der App bereitgestellt werden können.</p>
-      <p><strong>Zweck:</strong> Bereitstellung der Kernfunktionen, Speicherung von Arbeitsständen und app-notwendigen Einstellungen.</p>
-      <p><strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO; § 25 Abs. 2 Nr. 2 TDDDG.</p>
-      <p><strong>Speicherdauer:</strong> Bis zur Löschung durch den Nutzer im Browser.</p>
+      <p>Die App speichert vom Nutzer eingegebene Daten, Einstellungen und Arbeitszustände lokal im Browser des Nutzers.</p>
+      <p><strong>Zweck:</strong> Bereitstellung der Kernfunktionen, Speicherung von Arbeitsständen.<br>
+      <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO; § 25 Abs. 2 Nr. 2 TDDDG.<br>
+      <strong>Speicherdauer:</strong> Bis zur Löschung durch den Nutzer im Browser.</p>
 
       <h3>4. Optionale KI-Funktion über Anthropic</h3>
-      <p>Die App bietet optional die Möglichkeit, Rechnungen mit Hilfe eines KI-Dienstes der Anthropic, PBC, USA auszulesen. Diese Funktion ist <strong>freiwillig und standardmäßig deaktiviert</strong>.</p>
+      <p>Die App bietet optional die Möglichkeit, Rechnungen mit Hilfe eines KI-Dienstes von Anthropic PBC, USA, auszulesen. Diese Funktion ist <strong>freiwillig und standardmäßig deaktiviert</strong>.</p>
       <div class="prv-warn">
-        <p><strong>⚠ Wichtig:</strong> Bei Nutzung der KI-Funktion werden Belegdaten an Anthropic (USA) übertragen. Anthropic gibt an, API-Eingaben und -Ausgaben grundsätzlich innerhalb von 30 Tagen zu löschen, vorbehaltlich vertraglicher, technischer oder gesetzlicher Ausnahmen. Die KI-Funktion darf nur genutzt werden, wenn eine ausreichende datenschutzrechtliche Grundlage für die Übermittlung besteht.</p>
+        <p><strong>⚠ Wichtig:</strong> Bei Nutzung der KI-Funktion werden Belegdaten an Anthropic PBC in den USA übertragen. Anthropic gibt an, API-Eingaben und -Ausgaben grundsätzlich innerhalb von 30 Tagen zu löschen. Die KI-Funktion darf nur genutzt werden, wenn eine ausreichende datenschutzrechtliche Grundlage für die Übermittlung besteht.</p>
       </div>
 
       <h3>5. Datenschutzrechtliche Rolle bei der KI-Funktion</h3>
-      <p>Soweit Nutzer über die optionale KI-Funktion eigene Beleg- oder Rechnungsdaten an Anthropic übermitteln, erfolgt dies regelmäßig in eigener datenschutzrechtlicher Verantwortung des jeweiligen Nutzers. Unberührt bleibt unsere Verantwortung für die datenschutzkonforme Bereitstellung und transparente Beschreibung der App und ihrer Funktionen.</p>
-      <p><strong>Hinweis:</strong> Die in der App vorgesehene Einwilligung (Opt-in) dient der Transparenz und Dokumentation. Sie entbindet den Nutzer nicht von der Pflicht, die materielle Zulässigkeit der jeweiligen Datenübermittlung selbst zu prüfen.</p>
+      <p>Die optionale KI-Funktion wird nur aktiviert, wenn der Nutzer dieser Funktion ausdrücklich zustimmt oder sie aktiv einschaltet. Bei Nutzung der KI-Funktion werden die hierfür erforderlichen Beleg- oder Rechnungsdaten an Anthropic PBC übermittelt.</p>
+      <p>Soweit wir die technische Einbindung der KI-Funktion bereitstellen und den Anbieter für diese Verarbeitung auswählen, tragen wir Verantwortung für die transparente Beschreibung der Funktion, die datenschutzfreundliche Voreinstellung sowie die Einholung und Dokumentation der Einwilligung innerhalb der App.</p>
+      <p>Soweit Nutzer eigene, berufliche oder fremde personenbezogene Daten, insbesondere Kunden-, Mandanten-, Mitarbeiter- oder Zahlungsdaten, in die App eingeben oder über die KI-Funktion verarbeiten lassen, sind sie selbst dafür verantwortlich, dass hierfür eine ausreichende datenschutzrechtliche Grundlage besteht.</p>
 
       <h3>6. Drittlandübermittlung</h3>
-      <p>Bei Nutzung der optionalen KI-Funktion kann eine Übermittlung personenbezogener Daten an Anthropic, PBC (USA) erfolgen. Nach Angaben von Anthropic sind für kommerzielle API-Nutzungen ein Data Processing Addendum (DPA) und EU-Standardvertragsklauseln (SCCs) in die Commercial Terms eingebunden.</p>
+      <p>Bei Nutzung der optionalen KI-Funktion kann eine Übermittlung personenbezogener Daten an Anthropic PBC in den USA erfolgen. Für kommerzielle API-Nutzungen stellt Anthropic nach eigenen Angaben ein Data Processing Addendum einschließlich EU-Standardvertragsklauseln bereit, das in die Commercial Terms eingebunden ist.</p>
+      <p>Eine Übermittlung in die USA erfolgt nur, soweit hierfür eine geeignete datenschutzrechtliche Grundlage besteht.</p>
 
       <h3>7. Hinweise zur datenschutzkonformen Nutzung</h3>
+      <p>Nutzer sollten bei Verwendung der KI-Funktion insbesondere folgende Punkte beachten:</p>
       <ul>
-        <li>Nur erforderliche Daten an die KI-Funktion übermitteln</li>
-        <li>Personenbezogene Daten nach Möglichkeit minimieren oder pseudonymisieren</li>
-        <li>Die KI-Funktion nicht verwenden, wenn keine ausreichende Rechtsgrundlage besteht</li>
-        <li>Bei Verarbeitung personenbezogener Daten Dritter die datenschutzrechtliche Rollenverteilung prüfen und – soweit erforderlich – die notwendigen vertraglichen Regelungen mit Anthropic (z. B. DPA/AVV, SCCs) abschließen</li>
+        <li>Nur erforderliche Daten an die KI-Funktion übermitteln.</li>
+        <li>Personenbezogene Daten nach Möglichkeit minimieren oder pseudonymisieren.</li>
+        <li>Die KI-Funktion nicht verwenden, wenn keine ausreichende Rechtsgrundlage besteht.</li>
+        <li>Bei Verarbeitung personenbezogener Daten Dritter die datenschutzrechtliche Rollenverteilung prüfen.</li>
+        <li>Soweit erforderlich, die notwendigen vertraglichen Regelungen mit Anthropic (DPA/AVV, SCCs) abschließen.</li>
       </ul>
 
       <h3>8. Bereitstellung der App / Website / Download</h3>
-      <p>Beim Aufruf unserer Website oder der Download-Seite werden technisch erforderliche Verbindungsdaten verarbeitet.</p>
-      <p><strong>Empfänger:</strong> IONOS SE, Deutschland (Website-Hosting) sowie GitHub, Inc., USA (Download über GitHub Pages).</p>
-      <p><strong>Speicherdauer:</strong> In der Regel 7 bis 30 Tage.</p>
+      <p>Beim Aufruf unserer Website oder Download-Seite werden technisch erforderliche Verbindungsdaten verarbeitet.</p>
+      <p><strong>Empfänger</strong> können insbesondere unser Hostinganbieter IONOS SE, Deutschland, sowie GitHub, Inc., USA sein.<br>
+      <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO.<br>
+      <strong>Speicherdauer:</strong> Server-Logdaten werden in der Regel für 7 bis 30 Tage gespeichert.</p>
 
       <h3>9. Kontaktaufnahme</h3>
-      <p>Bei E-Mail-Kontakt verarbeiten wir die übermittelten Angaben zur Bearbeitung der Anfrage. <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b bzw. lit. f DSGVO.</p>
+      <p>Bei E-Mail-Kontakt verarbeiten wir die übermittelten Angaben zur Bearbeitung der Anfrage.<br>
+      <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b bzw. lit. f DSGVO.</p>
 
       <h3>10. Verkauf und Abrechnung</h3>
-      <p>Zahlungen werden über PayPal abgewickelt. <strong>Speicherdauer:</strong> Nach gesetzlichen Aufbewahrungsfristen (in der Regel 10 Jahre).</p>
+      <p>Zahlungen werden über PayPal abgewickelt. Anbieter ist PayPal (Europe) S.à r.l. et Cie, S.C.A., Luxemburg.<br>
+      <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. b DSGVO (Vertragsabwicklung) sowie Art. 6 Abs. 1 lit. c DSGVO (gesetzliche Aufbewahrungspflichten).<br>
+      <strong>Speicherdauer:</strong> Abrechnungs- und steuerrelevante Daten bis zu 10 Jahre.</p>
 
       <h3>11. Betroffenenrechte</h3>
-      <p>Du hast das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21 DSGVO). Außerdem besteht ein Beschwerderecht bei der zuständigen Datenschutzaufsichtsbehörde.</p>
+      <p>Sie haben das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung (Art. 18), Datenübertragbarkeit (Art. 20) sowie Widerspruch (Art. 21 DSGVO). Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen.</p>
+      <p><strong>Beschwerderecht bei:</strong> Comissão Nacional de Proteção de Dados (CNPD), Portugal.</p>
 
       <h3>12. Automatisierte Entscheidungsfindung</h3>
       <p>Eine automatisierte Entscheidungsfindung im Sinne von Art. 22 DSGVO findet durch uns nicht statt.</p>
@@ -490,6 +498,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
           <div class="prv-option-text">
             <strong>Zustimmen &amp; KI-Automatik nutzen</strong>
             <span>Ich willige ein, dass die für die KI-Auswertung erforderlichen Belegdaten an Anthropic übermittelt und dort zur automatisierten Auswertung verarbeitet werden.</span>
+            <span class="prv-costs">🔥 Kosten: ca. 0,01 – 0,03 € pro Beleg</span>
           </div>
         </div>
         <div class="prv-option prv-option-lokal" onclick="acceptPrivacyLokal()">
