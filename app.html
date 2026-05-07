@@ -739,47 +739,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
 </div>
 </div>
 
-<!-- SETUP -->
-<div class="setup" id="setupScr">
-  <div class="scard">
-    <div style="text-align:center;margin-bottom:28px;">
-      <div style="font-size:40px;margin-bottom:10px;">👋</div>
-      <div style="font-size:22px;font-weight:600;margin-bottom:5px;">Willkommen bei MIKU-BelegProfi!</div>
-      <div style="font-size:13px;color:var(--tx2);">Einmalige Einrichtung — danach einfach loslegen</div>
-    </div>
-    <div style="margin-bottom:18px;">
-      <div class="slbl2"><div class="snum">1</div> Dein Name</div>
-      <input class="fi" id="sName" placeholder="z.B. Max Mustermann">
-    </div>
-    <div style="margin-bottom:18px;">
-      <div class="slbl2"><div class="snum">2</div> Beruf oder Firma</div>
-      <input class="fi" id="sBeruf" placeholder="z.B. Elektriker · Mustermann">
-    </div>
-    <div style="margin-bottom:18px;">
-      <div class="slbl2"><div class="snum">3</div> Land / MwSt-Sätze</div>
-      <select class="fi" id="sLand" onchange="applyLand(this.value)">
-        <option value="de">🇩🇪 Deutschland (0%, 7%, 19%)</option>
-        <option value="at">🇦🇹 Österreich (0%, 10%, 13%, 20%)</option>
-        <option value="ch">🇨🇭 Schweiz (0%, 2,6%, 3,8%, 8,1%)</option>
-        <option value="custom">⚙️ Benutzerdefiniert</option>
-      </select>
-      <div id="customRates" style="display:none;margin-top:8px;background:var(--bg);border-radius:var(--r);padding:12px;font-size:13px;">
-        <div style="margin-bottom:6px;color:var(--tx2);">Eigene Sätze eingeben (kommagetrennt, z.B. <strong>0,5,12,21</strong>):</div>
-        <input class="fi" id="customRateInput" placeholder="0,5,12,21" style="font-size:13px;">
-      </div>
-    </div>
-    <div style="margin-bottom:8px;">
-      <div class="aguide" style="background:var(--gn2);border:1px solid rgba(15,110,58,0.2);">
-        <strong>🔒 100% lokal &amp; kostenlos</strong><br>
-        Die App liest deine Belege direkt in deinem Browser aus — kein API-Key, keine Cloud, keine Kosten. Deine Daten verlassen niemals deinen Computer.
-      </div>
-    </div>
-    <button class="btn btn-bl btn-lg" style="width:100%;margin-top:16px;" onclick="saveSetup()">Einrichtung abschließen →</button>
-    <div style="text-align:center;margin-top:12px;">
-      <span style="font-size:12px;color:var(--tx3);cursor:pointer;text-decoration:underline;" onclick="skipSetup()">Einrichtung überspringen — ich trage alles manuell ein</span>
-    </div>
-  </div>
-</div>
+
 
 <!-- MODAL EINGANG -->
 <div class="ov" id="mEin" onclick="closeOv('mEin',event)">
@@ -1538,30 +1498,6 @@ function applyUser(name,beruf,key){
   document.getElementById('kiOn').style.display=kiActive?'flex':'none';
   document.getElementById('kiOff').style.display=kiActive?'none':'flex';
 }
-function saveSetup(){
-  const name=document.getElementById('sName').value.trim();
-  if(!name){document.getElementById('sName').focus();showAlert('Bitte deinen Namen eingeben.','rd');return;}
-  const beruf=document.getElementById('sBeruf').value.trim();
-
-  const land=document.getElementById('sLand')?.value||'de';
-  localStorage.setItem('bp_n',name);localStorage.setItem('bp_b',beruf);
-  localStorage.setItem('bp_setup_done','1');
-  localStorage.setItem('bp_land',land);
-  if(land==='custom'){
-    const raw=document.getElementById('customRateInput')?.value||'';
-    if(raw)localStorage.setItem('bp_custom_rates',raw);
-  }
-  applyUser(name,beruf);
-  document.getElementById('setupScr').style.display='none';
-  showAlert(`Willkommen ${name}! MIKU-BelegProfi ist bereit.`,'gn');
-}
-function skipSetup(){
-  const name=document.getElementById('sName').value.trim()||'Handwerker';
-  localStorage.setItem('bp_n',name);
-  localStorage.setItem('bp_setup_done','1');
-  applyUser(name,'','');
-  document.getElementById('setupScr').style.display='none';
-}
 function revokeKI(){
   localStorage.removeItem('bp_ki_consent');
   KEY='';
@@ -1751,7 +1687,6 @@ function acceptPrivacyLokal(){
 }
 function startApp(){
   const n=localStorage.getItem('bp_n'),b=localStorage.getItem('bp_b')||'',k=localStorage.getItem('bp_k')||'';
-  const setupDone=localStorage.getItem('bp_setup_done');
   // Init MwSt dropdowns
   const land=localStorage.getItem('bp_land')||'de';
   currentLand=land;
@@ -1762,10 +1697,7 @@ function startApp(){
   } else {
     fillMwDropdowns(MWST_RATES[land]||MWST_RATES.de);
   }
-  if(n&&setupDone){
-    applyUser(n,b,k);
-    document.getElementById('setupScr').style.display='none';
-  }
+  applyUser(n||'Handwerker',b,k);
   try{
     const saved=localStorage.getItem('bp_data');
     if(saved){
