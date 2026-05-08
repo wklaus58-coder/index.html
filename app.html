@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -194,7 +194,7 @@ tbody tr:hover td{background:var(--bg);}
 @keyframes splashFade{0%{opacity:0;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
 
 /* PRIVACY SCREEN */
-#privacyScr{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);display:none;align-items:center;justify-content:center;z-index:9998;padding:24px;box-sizing:border-box;}
+#privacyScr{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,1);display:none;align-items:center;justify-content:center;z-index:9998;padding:24px;box-sizing:border-box;}
 .prv-card{background:#fff;border-radius:18px;max-width:800px;width:100%;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);margin:auto;}
 .prv-header{padding:28px 36px 20px;border-bottom:2px solid #e0e0e0;display:flex;align-items:center;gap:16px;flex-shrink:0;}
 .prv-logo{width:56px;height:56px;border-radius:50%;}
@@ -225,6 +225,18 @@ tbody tr:hover td{background:var(--bg);}
 .prv-option-icon{font-size:28px;flex-shrink:0;margin-top:2px;}
 .prv-option-text strong{display:block;font-size:16px;font-weight:700;color:#000;margin-bottom:5px;}
 .prv-option-text span{font-size:13px;color:#333;line-height:1.6;}
+
+/* LICENSE SCREEN */
+#licenseScr{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,1);display:none;align-items:center;justify-content:center;z-index:9998;padding:24px;box-sizing:border-box;}
+.lic-card{background:#fff;border-radius:18px;max-width:460px;width:100%;padding:44px 40px;box-shadow:0 24px 80px rgba(0,0,0,0.5);text-align:center;}
+.lic-title{font-size:26px;font-weight:700;color:#1B4FD8;margin-bottom:6px;letter-spacing:-0.3px;}
+.lic-sub{font-size:14px;color:#6B6860;margin-bottom:32px;line-height:1.6;}
+.lic-input{width:100%;padding:13px 16px;border:2px solid #d0d0d0;border-radius:10px;font-size:17px;font-family:monospace;text-align:center;letter-spacing:3px;text-transform:uppercase;outline:none;margin-bottom:14px;color:#1a1916;transition:border-color 0.15s;}
+.lic-input:focus{border-color:#1B4FD8;}
+.lic-btn{width:100%;padding:14px;background:#1B4FD8;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.12s;}
+.lic-btn:hover{background:#1640B0;}
+.lic-err{font-size:13px;color:#B91C1C;background:#FEE2E2;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:none;}
+.lic-hint{font-size:12px;color:#A09D97;margin-top:16px;line-height:1.6;}
 
 .ie{padding:3px 6px;border:1px solid var(--bl);border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--sur);color:var(--tx);width:100%;min-width:60px;}
 .ie:focus{outline:none;box-shadow:0 0 0 2px rgba(27,79,216,0.18);}
@@ -400,7 +412,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
 </script>
 </head>
 <body>
-<div class="app">
+<div class="app" id="mainApp">
 
 <!-- SPLASH SCREEN -->
 <div id="splashScr">
@@ -408,6 +420,18 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
   <div class="splash-title">MIKU-BelegProfi</div>
   <div class="splash-sub">Buchhaltung leicht gemacht</div>
   <div class="splash-version">Version 1.0 &nbsp;·&nbsp; by MIKU-Marketing</div>
+</div>
+
+<!-- LICENSE SCREEN -->
+<div id="licenseScr">
+  <div class="lic-card">
+    <div class="lic-title">MIKU-BelegProfi</div>
+    <div class="lic-sub">Bitte geben Sie Ihren Lizenzschlüssel ein,<br>um die App freizuschalten.</div>
+    <div class="lic-err" id="licErr">Ungültiger Lizenzschlüssel. Bitte prüfen Sie die Eingabe.</div>
+    <input class="lic-input" id="licKey" type="text" placeholder="MIKU-2026-XXXX-XXXX" maxlength="19" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')saveLicense()">
+    <button class="lic-btn" onclick="saveLicense()">Lizenz aktivieren</button>
+    <div class="lic-hint">Den Lizenzschlüssel erhalten Sie mit Ihrer Bestellung.<br>Bei Fragen wenden Sie sich an MIKU-Marketing.</div>
+  </div>
 </div>
 
 <!-- PRIVACY SCREEN -->
@@ -496,6 +520,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
           <div class="prv-option-text">
             <strong>Zustimmen &amp; KI-Automatik nutzen</strong>
             <span>Ich willige ein, dass die für die KI-Auswertung erforderlichen Belegdaten an Anthropic übermittelt und dort zur automatisierten Auswertung verarbeitet werden.</span>
+            <span style="display:block;margin-top:6px;font-weight:700;">💰 Kosten: ca. 0,01 – 0,03 € pro Beleg</span>
           </div>
         </div>
         <div class="prv-option prv-option-lokal" onclick="acceptPrivacyLokal()">
@@ -644,7 +669,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <div class="tabs">
               <button class="tab active" onclick="eTab('alle',this)">Alle</button>
-              <button class="tab" onclick="eTab('inland',this)">🇩🇪 Inland</button>
+              <button class="tab" id="eTabInland" onclick="eTab('inland',this)">🇩🇪 Inland</button>
               <button class="tab" onclick="eTab('eu',this)">🇪🇺 EU</button>
               <button class="tab" onclick="eTab('drittland',this)">🌍 Drittland</button>
             </div>
@@ -746,7 +771,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
 </div>
 
 <!-- SETUP -->
-<div class="setup" id="setupScr">
+<div class="setup" id="setupScr" style="display:none;">
   <div class="scard">
     <div style="text-align:center;margin-bottom:28px;">
       <div style="font-size:40px;margin-bottom:10px;">👋</div>
@@ -781,9 +806,45 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
       </div>
     </div>
     <button class="btn btn-bl btn-lg" style="width:100%;margin-top:16px;" onclick="saveSetup()">Einrichtung abschließen →</button>
-    <div style="text-align:center;margin-top:12px;">
-      <span style="font-size:12px;color:var(--tx3);cursor:pointer;text-decoration:underline;" onclick="skipSetup()">Einrichtung überspringen — ich trage alles manuell ein</span>
+  </div>
+</div>
+<!-- KI SETUP -->
+<div class="setup" id="kiSetupScr" style="display:none;">
+  <div class="scard">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:40px;margin-bottom:10px;">🤖</div>
+      <div style="font-size:22px;font-weight:600;margin-bottom:5px;">Willkommen bei MIKU-BelegProfi!</div>
+      <div style="font-size:13px;color:var(--tx2);">KI-Einrichtung — danach automatisch Belege auswerten</div>
     </div>
+    <div style="margin-bottom:18px;">
+      <div class="slbl2"><div class="snum">1</div> Dein Name</div>
+      <input class="fi" id="kiName" placeholder="z.B. Max Mustermann">
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="slbl2"><div class="snum">2</div> Beruf oder Firma</div>
+      <input class="fi" id="kiBeruf" placeholder="z.B. Elektriker · Mustermann">
+    </div>
+    <div style="margin-bottom:18px;">
+      <div class="slbl2"><div class="snum">3</div> Claude API-Key</div>
+      <div style="display:flex;gap:8px;">
+        <input class="fi" id="kiKey" type="password" placeholder="sk-ant-api03-...">
+        <button class="btn" onclick="tKey('kiKey')" style="flex-shrink:0;">Zeigen</button>
+      </div>
+      <div class="aguide" style="margin-top:8px;font-size:12px;line-height:1.9;">
+        So erhalten Sie den API-Key:<br>
+        1. <a href="https://console.anthropic.com" target="_blank" style="color:var(--bl);font-weight:600;">console.anthropic.com</a> öffnen<br>
+        2. Links auf „API keys" klicken<br>
+        3. „Create Key" → Namen vergeben<br>
+        4. Key kopieren &amp; oben einfügen
+      </div>
+    </div>
+    <div style="margin-bottom:8px;">
+      <div class="aguide" style="background:var(--bl2);border:1px solid rgba(27,79,216,0.2);">
+        💰 <strong>Kosten: ca. 0,01 – 0,03 € pro Beleg</strong> über Ihr Anthropic-Konto.<br>
+        Belege gehen bei KI-Nutzung direkt an Anthropic. Alle anderen Daten bleiben ausschließlich lokal.
+      </div>
+    </div>
+    <button class="btn btn-bl btn-lg" style="width:100%;margin-top:16px;" onclick="saveKiSetup()">Einrichtung abschließen →</button>
   </div>
 </div>
 
@@ -798,7 +859,7 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
       <div class="fgp"><label class="flbl">Netto (€)</label><input class="fi" id="eN" type="number" step="0.01" placeholder="0.00" oninput="calcB('e')"></div>
       <div class="fgp"><label class="flbl">Mehrwertsteuer</label><div style="display:flex;gap:6px;align-items:center;"><select class="fi" id="eMw" onchange="onMwChange('eMw','eMwCustom');calcB('e')"></select><input class="fi" id="eMwCustom" type="number" min="0" max="100" step="0.1" placeholder="%" style="width:70px;display:none;" onchange="calcB('e')"></div></div>
       <div class="fgp"><label class="flbl">Brutto (€)</label><input class="fi" id="eBr" type="number" step="0.01" placeholder="0.00"></div>
-      <div class="fgp"><label class="flbl">Woher kommt die Rechnung?</label><select class="fi" id="eHk"><option value="inland">🇩🇪 Deutschland</option><option value="eu">🇪🇺 EU-Ausland</option><option value="drittland">🌍 Drittland (China, USA...)</option></select></div>
+      <div class="fgp"><label class="flbl">Woher kommt die Rechnung?</label><select class="fi" id="eHk"><option value="inland" id="eHkInland">🇩🇪 Deutschland</option><option value="eu">🇪🇺 EU-Ausland</option><option value="drittland">🌍 Drittland (China, USA...)</option></select></div>
       <div class="fgp"><label class="flbl">Kategorie</label><select class="fi" id="eKt"><option>Material &amp; Waren</option><option>Werkzeug &amp; Maschinen</option><option>Fahrzeug &amp; Transport</option><option>Büro &amp; Verwaltung</option><option>Überweisungen &amp; Abgaben</option><option>Sonstiges</option></select></div>
       <div class="fgp full"><label class="flbl">Buchungstext (für Steuerberater)</label><input class="fi" id="eBt" placeholder="z.B. Büro/Miete, Hosting, Handygebühr..."></div>
       <div class="fgp"><label class="flbl">Zahlungsart</label><select class="fi" id="eZa"><option value="bank">Bank</option><option value="bar">Bar</option></select></div>
@@ -908,7 +969,7 @@ let D={
 
 // ── FORMAT ────────────────────────────────────────────────────────────────────
 const f2=n=>(+n).toFixed(2).replace('.',',')+' €';
-const hB=h=>h==='eu'?'<span class="badge b-am">🇪🇺 EU-Ausland</span>':h==='drittland'?'<span class="badge b-co">🌍 Drittland</span>':'<span class="badge b-bl">🇩🇪 Inland</span>';
+const hB=h=>h==='eu'?'<span class="badge b-am">🇪🇺 EU-Ausland</span>':h==='drittland'?'<span class="badge b-co">🌍 Drittland</span>':`<span class="badge b-bl">${{de:'🇩🇪',at:'🇦🇹',ch:'🇨🇭'}[currentLand]||'🏳️'} Inland</span>`;
 const kB=k=>{const m={'Material & Waren':'b-bl','Werkzeug & Maschinen':'b-am','Fahrzeug & Transport':'b-co','Büro & Verwaltung':'b-pu','Verpflegung':'b-gn','Überweisungen & Abgaben':'b-rd2c','Sonstiges':'b-gr'};return`<span class="badge ${m[k]||'b-gr'}">${k||'—'}</span>`;};
 const mL=r=>r.herk==='eu'?'<span class="badge b-am">0% RC</span>':r.herk==='drittland'?'<span class="badge b-co">0% EUSt</span>':`<span style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-r.netto)}</span></span>`;
 const stB=s=>s==='bezahlt'?'<span class="badge b-gn">✓ Bezahlt</span>':'<span class="badge b-am">Offen</span>';
@@ -1010,7 +1071,7 @@ function rEin(f){
   document.getElementById('eTh').innerHTML='<th style="width:32px"></th>'+th('ein','dat','Datum')+th('ein','lief','Lieferant')+'<th>Was wurde geliefert?</th>'+th('ein','herk','Herkunft')+th('ein','netto','Netto')+'<th>MwSt</th>'+th('ein','brutto','Brutto')+th('ein','kat','Kategorie')+'<th></th>';
   const tb=document.getElementById('eTb');
   if(!rows.length){tb.innerHTML=`<tr><td colspan="10"><div class="empty"><div class="ei">📥</div><div class="et">Keine Eingangsrechnungen</div><div class="es">Rechnung hochladen oder manuell eintragen</div></div></td></tr>`;document.getElementById('eFt').innerHTML='';return;}
-  tb.innerHTML=rows.map(r=>`<tr data-id="ein-${r.id}" ondblclick="editRow('ein',${r.id})" title="Doppelklick zum Bearbeiten"><td style="text-align:center"><input type="checkbox" class="sel-cb" ${SEL.ein.has(r.id)?'checked':''} onchange="togSel('ein',${r.id},this)" onclick="event.stopPropagation()"></td><td class="mono">${r.dat}</td><td class="bold">${r.lief}</td><td class="muted">${r.desc}${r.hint?` <span title="${r.hint}" style="cursor:help;color:var(--am)">⚠</span>`:''}</td><td>${hB(r.herk)}</td><td class="mono">${f2(r.netto)}</td><td>${mL(r)}</td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('ein',${r.id})">✕</button></td></tr>`).join('');
+  tb.innerHTML=rows.map(r=>`<tr data-id="ein-${r.id}" ondblclick="editRow('ein',${r.id})" title="Doppelklick zum Bearbeiten"><td style="text-align:center"><input type="checkbox" class="sel-cb" ${SEL.ein.has(r.id)?'checked':''} onchange="togSel('ein',${r.id},this)" onclick="event.stopPropagation()"></td><td class="mono">${r.dat}</td><td class="bold">${r.lief}${r.needsReview?' <span style="color:var(--am);font-size:10px;font-weight:700" title="Bitte alle Felder prüfen">⚠</span>':''}</td><td class="muted">${r.desc}${r.hint?` <span title="${r.hint}" style="cursor:help;color:var(--am)">⚠</span>`:''}</td><td>${hB(r.herk)}</td><td class="mono">${f2(r.netto)}</td><td>${mL(r)}</td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('ein',${r.id})">✕</button></td></tr>`).join('');
   const tn=rows.reduce((s,r)=>s+r.netto,0),tb2=rows.reduce((s,r)=>s+r.brutto,0);
   document.getElementById('eFt').innerHTML=`<tr class="tr-total"><td></td><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt ${rows.length} Belege</td><td class="mono">${f2(tn)}</td><td></td><td class="mono">${f2(tb2)}</td><td colspan="2"></td></tr>`;
 }
@@ -1022,7 +1083,7 @@ function rAus(){
   document.getElementById('aTh').innerHTML='<th style="width:32px"></th>'+th('aus','dat','Datum')+th('aus','kund','Kunde')+'<th>Beschreibung</th>'+th('aus','rech','Rech.-Nr.')+th('aus','netto','Netto')+'<th>MwSt</th>'+th('aus','brutto','Brutto')+th('aus','stat','Status')+'<th></th>';
   const tb=document.getElementById('aTb');
   if(!rows.length){tb.innerHTML=`<tr><td colspan="10"><div class="empty"><div class="ei">📤</div><div class="et">Keine Ausgangsrechnungen</div></div></td></tr>`;document.getElementById('aFt').innerHTML='';return;}
-  tb.innerHTML=rows.map(r=>`<tr data-id="aus-${r.id}" ondblclick="editRow('aus',${r.id})" title="Doppelklick zum Bearbeiten"><td style="text-align:center"><input type="checkbox" class="sel-cb" ${SEL.aus.has(r.id)?'checked':''} onchange="togSel('aus',${r.id},this)" onclick="event.stopPropagation()"></td><td class="mono">${r.dat}</td><td class="bold">${r.kund}</td><td class="muted">${r.desc}</td><td class="mono" style="min-width:120px;font-size:12px">${r.rech}</td><td class="mono">${f2(r.netto)}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-r.netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${stB(r.stat)}</td><td><button class="del-btn" onclick="del('aus',${r.id})">✕</button></td></tr>`).join('');
+  tb.innerHTML=rows.map(r=>`<tr data-id="aus-${r.id}" ondblclick="editRow('aus',${r.id})" title="Doppelklick zum Bearbeiten"><td style="text-align:center"><input type="checkbox" class="sel-cb" ${SEL.aus.has(r.id)?'checked':''} onchange="togSel('aus',${r.id},this)" onclick="event.stopPropagation()"></td><td class="mono">${r.dat}</td><td class="bold">${r.kund}${r.needsReview?' <span style="color:var(--am);font-size:10px;font-weight:700" title="Bitte alle Felder prüfen">⚠</span>':''}</td><td class="muted">${r.desc}</td><td class="mono" style="min-width:120px;font-size:12px">${r.rech}</td><td class="mono">${f2(r.netto)}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-r.netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${stB(r.stat)}</td><td><button class="del-btn" onclick="del('aus',${r.id})">✕</button></td></tr>`).join('');
   const tn=rows.reduce((s,r)=>s+r.netto,0),tb2=rows.reduce((s,r)=>s+r.brutto,0);
   document.getElementById('aFt').innerHTML=`<tr class="tr-total"><td></td><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(tn)}</td><td></td><td class="mono">${f2(tb2)}</td><td colspan="2"></td></tr>`;
 }
@@ -1033,7 +1094,7 @@ function rBar(){
   document.getElementById('bTh').innerHTML='<th style="width:32px"></th>'+th('bar','dat','Datum')+th('bar','haend','Händler')+'<th>Was wurde gekauft?</th>'+th('bar','mwst','MwSt')+th('bar','brutto','Betrag')+th('bar','kat','Kategorie')+'<th></th>';
   const tb=document.getElementById('bTb');
   if(!rows.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei">🧾</div><div class="et">Keine Barbelege</div></div></td></tr>`;document.getElementById('bFt').innerHTML='';return;}
-  tb.innerHTML=rows.map(r=>{const netto=+(r.brutto/(1+r.mwst/100)).toFixed(2);return`<tr data-id="bar-${r.id}" ondblclick="editRow('bar',${r.id})" title="Doppelklick zum Bearbeiten"><td style="text-align:center"><input type="checkbox" class="sel-cb" ${SEL.bar.has(r.id)?'checked':''} onchange="togSel('bar',${r.id},this)" onclick="event.stopPropagation()"></td><td class="mono">${r.dat}</td><td class="bold">${r.haend}</td><td class="muted">${r.desc}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('bar',${r.id})">✕</button></td></tr>`;}).join('');
+  tb.innerHTML=rows.map(r=>{const netto=+(r.brutto/(1+r.mwst/100)).toFixed(2);return`<tr data-id="bar-${r.id}" ondblclick="editRow('bar',${r.id})" title="Doppelklick zum Bearbeiten"><td style="text-align:center"><input type="checkbox" class="sel-cb" ${SEL.bar.has(r.id)?'checked':''} onchange="togSel('bar',${r.id},this)" onclick="event.stopPropagation()"></td><td class="mono">${r.dat}</td><td class="bold">${r.haend}${r.needsReview?' <span style="color:var(--am);font-size:10px;font-weight:700" title="Bitte alle Felder prüfen">⚠</span>':''}</td><td class="muted">${r.desc}</td><td class="mono" style="white-space:nowrap">${r.mwst}%<br><span style="font-size:11px;color:var(--tx3)">${f2(r.brutto-netto)}</span></td><td class="mono bold">${f2(r.brutto)}</td><td>${kB(r.kat)}</td><td><button class="del-btn" onclick="del('bar',${r.id})">✕</button></td></tr>`;}).join('');
   document.getElementById('bFt').innerHTML=`<tr class="tr-total"><td></td><td colspan="4" style="text-align:right;font-size:11px;color:var(--tx3)">Gesamt</td><td class="mono">${f2(D.bar.reduce((s,r)=>s+r.brutto,0))}</td><td colspan="2"></td></tr>`;
 }
 
@@ -1064,7 +1125,7 @@ function doExp(type){
   D.aus.forEach(r=>{if(type==='alle'||type==='aus'){allRates.add(r.mwst);const nm=(r.kund||'').split(',')[0].trim();allData.push({...r,art:'Ausgang',nm,netto:r.netto});}});
   D.bar.forEach(r=>{if(type==='alle'){const n=+(r.brutto/(1+r.mwst/100)).toFixed(2);allRates.add(r.mwst);allData.push({...r,art:'Bar',nm:r.haend,netto:n});}});
   // Spalten nach Land-Einstellung — nicht nach vorhandenen Daten
-  const landRateMap={de:[0,7,19],at:[0,10,20],ch:[0,2.6,3.8,8.1]};
+  const landRateMap={de:[0,7,19],at:[0,10,13,20],ch:[0,2.6,3.8,8.1]};
   const rates=landRateMap[currentLand]||[...allRates].sort((a,b)=>a-b);
   const h=['Datum','Bank/Bar','Belegart','Name'];
   rates.forEach(v=>{const lbl=v+'%';h.push('Brutto '+lbl,'Netto '+lbl,'MwSt '+lbl);});
@@ -1237,9 +1298,10 @@ function parseOcrText(text,type){
   }
 
   // ── 4. MWST ───────────────────────────────────────────────────────────────
+  const _validRates={de:[0,7,19],at:[0,10,13,20],ch:[0,2.6,3.8,8.1]}[currentLand]||[0,7,19];
   let mwst=mwstStd;
   if(/steuerfrei|steuerbefreit|0\s*%|Reverse\s*Charge|\bRC\b/i.test(t)){mwst=0;}
-  else{const mm=t.match(/(19|20|7|10|13|8[.,]1|3[.,]8|2[.,]6)\s*%/);if(mm)mwst=parseFloat(mm[1].replace(',','.')); }
+  else{const mm=t.match(/(19|20|7|10|13|8[.,]1|3[.,]8|2[.,]6)\s*%/);if(mm){const r=parseFloat(mm[1].replace(',','.'));mwst=_validRates.includes(r)?r:mwstStd;}}
 
   // ── 5. NETTO ──────────────────────────────────────────────────────────────
   const netto=mwst>0?Math.round(brutto/(1+mwst/100)*100)/100:brutto;
@@ -1247,25 +1309,26 @@ function parseOcrText(text,type){
   // ── 6. NAME ───────────────────────────────────────────────────────────────
   let name='';
   const lines=t.split(/\n|  +/).map(l=>l.trim()).filter(l=>l.length>2);
-  const nmM=t.match(/(?:Lieferant|Absender|Von|Firma|Kunde|An)\s*:?\s*([A-ZÄÖÜ][^\n]{3,50})/i);
+  const nmM=t.match(/(?:Lieferant|Absender|Von|Firma|Rechnungssteller)\s*:?\s*([A-ZÄÖÜ][^\n]{3,50})/i);
   if(nmM)name=nmM[1].trim().slice(0,50);
   if(!name){
     const skip=/^(rechnung|invoice|quittung|datum|betreff|bestellung|lieferung|mwst|ust|netto|brutto|gesamt|total|iban|bic|sepa|zahlung|zahlbar|fällig|seite|page|nr\.|nr |ref\.|ref |powered|www\.|http|ins\.|\d)/i;
-    // Rechnungsnummern überspringen (z.B. F55-8972, R-595-2025)
+    const skipAddr=/^\d{4,5}\s|\bstra(ße|sse)\b|str\.\s|\btel\b\.?[\s:]+\d|\bfax\b|e-mail\s*:|@[a-z]|^https?:|gmbh\s*&\s*co\.?\s*kg\s*$|amtsgericht|handelsregister/i;
     const skipRechNr=/^[A-Z]{0,3}\d{2,}[\-\/]\d/;
     for(const l of lines.slice(0,15)){
-      if(!skip.test(l)&&!skipRechNr.test(l)&&l.length>3&&l.length<60&&!/^\d/.test(l)){name=l.slice(0,50);break;}
+      if(!skip.test(l)&&!skipAddr.test(l)&&!skipRechNr.test(l)&&l.length>3&&l.length<60&&!/^\d/.test(l)){name=l.slice(0,50);break;}
     }
   }
-  if(!name&&lines.length)name=lines[0].slice(0,50);
+  // Kein Fallback auf lines[0] — lieber leer als falscher Name
 
   // ── 7. BESCHREIBUNG ───────────────────────────────────────────────────────
   let desc='';
   const skip2=/^(rechnung|invoice|datum|mwst|ust|netto|brutto|gesamt|total|iban|bic|sepa|zahlung|\d{1,2}[.\-\/]\d{1,2})/i;
+  const skipAddr2=/^\d{4,5}\s|\bstra(ße|sse)\b|str\.\s|\btel\b\.?[\s:]+\d|\bfax\b|e-mail\s*:|@[a-z]|^https?:|^www\./i;
   for(const l of lines){
-    if(l.toLowerCase()!==name.toLowerCase()&&!skip2.test(l)&&l.length>5&&l.length<80){desc=l.slice(0,60);break;}
+    if(l.toLowerCase()!==name.toLowerCase()&&!skip2.test(l)&&!skipAddr2.test(l)&&l.length>5&&l.length<80){desc=l.slice(0,60);break;}
   }
-  if(!desc)desc=name.slice(0,60)||'Beleg';
+  if(!desc)desc='Beleg';
 
   // ── 8. RECHNUNGSNUMMER ────────────────────────────────────────────────────
   let rech='';
@@ -1274,10 +1337,14 @@ function parseOcrText(text,type){
 
   // ── 9. HERKUNFT ───────────────────────────────────────────────────────────
   let herk='inland',hint='';
-  if(/China|USA|United\s*States|\bUK\b|United\s*Kingdom|Großbritannien|Japan|Kanada|Australien/i.test(t)){
+  const _drittRx=/China|chinesisch|USA|United\s*States|Amerika|\bUK\b|United\s*Kingdom|Großbritannien|Britain|Japan|Kanada|Canada|Australien|Australia|Indien|India|Türkei|Turkey|\bKorea\b|Singapur|Singapore|Russland|Russia|Brasilien|Brazil|Mexiko|Mexico|Saudi|Vietnam|Thailand|Taiwan|Hongkong|Hong\s*Kong|Indonesien|Indonesia|Pakistan|Ägypten|Egypt/i;
+  const _euRx=/Frankreich|France|Italia|Italien|Italie|España|Spanien|Spain|Polen|Poland|Nederland|Niederlande|Netherlands|Belgien|Belgium|Sverige|Schweden|Sweden|Danmark|Dänemark|Denmark|Suomi|Finnland|Finland|Portugal|Tschechien|Czech|Slowakei|Slovakia|Ungarn|Hungary|Rumänien|Romania|Bulgarien|Bulgaria|Kroatien|Croatia|Slowenien|Slovenia|Estland|Estonia|Lettland|Latvia|Litauen|Lithuania|Luxemburg|Luxembourg|\bMalta\b|Zypern|Cyprus|Griechenland|Greece/i;
+  if(_drittRx.test(t)){
     herk='drittland';hint='Drittland-Rechnung — bitte Herkunft und EUSt prüfen.';mwst=0;
-  }else if((/\bVAT\b|\bTVA\b|\bBTW\b|\bIVA\b|\bUID\b/i.test(t)||/USt-IdNr\.?\s*[A-Z]{2}[A-Z0-9]/i.test(t))&&!/Deutschland|Germany|DE\d{9}/i.test(t)){
+  }else if(_euRx.test(t)||((/\bVAT\b|\bTVA\b|\bBTW\b|\bIVA\b|\bUID\b/i.test(t)||/USt-IdNr\.?\s*[A-Z]{2}[A-Z0-9]/i.test(t))&&!/Deutschland|Germany|DE\d{9}/i.test(t))){
     herk='eu';hint='EU-Auslandsrechnung — bitte Herkunft prüfen.';mwst=0;
+  }else if(!(/Deutschland|Germany|\bGmbH\b|\bUG\b|\bAG\b|Steuer-?Nr\.|Finanzamt|\.de\b|DE\d{9}|Österreich|Austria|ATU\d{8}|\.at\b|Schweiz|Switzerland|CHE[-\d]|\.ch\b/i.test(t))){
+    hint='Herkunft nicht eindeutig erkannt — bitte prüfen.';
   }
 
   // ── 10. KATEGORIE ─────────────────────────────────────────────────────────
@@ -1379,22 +1446,36 @@ async function callClaudeKI(file,type){
   const b64=await toB64(file);
   const isPdf=file.type==='application/pdf';
   const ci=isPdf?{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}}:{type:'image',source:{type:'base64',media_type:file.type,data:b64}};
+  const _mwstStdKI={de:19,at:20,ch:8.1}[currentLand]||19;
+  const _mwstListKI={de:'19 oder 7',at:'20, 10 oder 13',ch:'8.1, 3.8 oder 2.6'}[currentLand]||'19 oder 7';
+  const _landNameKI={de:'Deutschland',at:'Österreich',ch:'Schweiz'}[currentLand]||'Deutschland';
   const prompts={
-    ein:`Lies diese Eingangsrechnung aus. Antworte NUR mit JSON ohne Backticks:
-{"dat":"TT.MM.JJJJ","lief":"Lieferant","desc":"max 60 Zeichen","herk":"inland","netto":0.00,"mwst":19,"brutto":0.00,"kat":"Material & Waren","hint":""}
-herk: inland=Deutschland, eu=EU-Ausland, drittland=China/USA/UK etc. Bei eu/drittland: mwst=0, hint=Steuerhinweis.
-kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwaltung, Überweisungen & Abgaben, Sonstiges`,
-    aus:`Lies diese Ausgangsrechnung aus. Antworte NUR mit JSON ohne Backticks:
-{"dat":"TT.MM.JJJJ","kund":"Kunde","desc":"Beschreibung","rech":"Rechnungsnr","netto":0.00,"mwst":19,"brutto":0.00,"stat":"offen"}`,
-    bar:`Lies diesen Kassenbon aus. Antworte NUR mit JSON ohne Backticks:
-{"dat":"TT.MM.JJJJ","haend":"Händler","desc":"Was wurde gekauft","mwst":19,"brutto":0.00,"kat":"Material & Waren"}
-kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwaltung, Verpflegung, Sonstiges`
+    ein:`Lies diese Eingangsrechnung aus. Antworte NUR mit JSON, keine Backticks, kein Kommentar:
+{"dat":"TT.MM.JJJJ","lief":"Firmenname des Rechnungsstellers","desc":"Bezeichnung der Ware oder Dienstleistung","herk":"inland","netto":0.00,"mwst":${_mwstStdKI},"brutto":0.00,"kat":"Material & Waren","hint":""}
+Feldregeln:
+- lief: Nur der Firmenname des Lieferanten/Rechnungsstellers (nicht Empfänger, nicht Adresse).
+- desc: Nur die gelieferte Leistung oder Ware (z.B. "Druckerpapier A4", "Montagearbeiten"). Niemals der Firmenname.
+- herk: Steuergebiet des Lieferanten. inland=${_landNameKI}, eu=EU-Ausland, drittland=außerhalb EU (USA/China/UK/Indien usw.). Bei eu/drittland: mwst=0, hint=Steuerhinweis.
+- mwst: Erlaubte Werte: ${_mwstListKI}, 0. Lies den tatsächlichen Steuersatz vom Beleg.
+- kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwaltung, Überweisungen & Abgaben, Sonstiges.
+- Wenn ein Wert nicht sicher erkennbar ist: lief="" desc="" brutto=0 — kein Raten.`,
+    aus:`Lies diese Ausgangsrechnung aus. Antworte NUR mit JSON, keine Backticks, kein Kommentar:
+{"dat":"TT.MM.JJJJ","kund":"Firmenname oder Name des Rechnungsempfängers","desc":"Bezeichnung der erbrachten Leistung","rech":"Rechnungsnr","netto":0.00,"mwst":${_mwstStdKI},"brutto":0.00,"stat":"offen"}
+Erlaubte mwst-Werte: ${_mwstListKI}, 0. Wenn Feld unklar: leer lassen oder 0.`,
+    bar:`Lies diesen Kassenbon aus. Antworte NUR mit JSON, keine Backticks, kein Kommentar:
+{"dat":"TT.MM.JJJJ","haend":"Name des Händlers oder Geschäfts","desc":"Was wurde gekauft (Warenbezeichnung)","mwst":${_mwstStdKI},"brutto":0.00,"kat":"Material & Waren"}
+Erlaubte mwst-Werte: ${_mwstListKI}, 0. kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwaltung, Verpflegung, Sonstiges.`
   };
   const res=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:400,messages:[{role:'user',content:[ci,{type:'text',text:prompts[type]}]}]})
+    headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-opus-4-5',max_tokens:700,messages:[{role:'user',content:[ci,{type:'text',text:prompts[type]}]}]})
   });
+  if(!res.ok){
+    let msg='HTTP '+res.status;
+    try{const e=await res.json();if(e?.error?.message)msg=e.error.message;}catch(_){}
+    throw new Error('HTTP_'+res.status+': '+msg);
+  }
   const d=await res.json();
   if(d.error)throw new Error(d.error.message);
   const txt=d.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
@@ -1402,7 +1483,13 @@ kat: Material & Waren, Werkzeug & Maschinen, Fahrzeug & Transport, Büro & Verwa
 }
 async function processFile(file,type){
   document.getElementById('procBar').style.display='flex';
+  if(!KEY&&localStorage.getItem('bp_ki_consent')==='1')KEY=localStorage.getItem('bp_k')||'';
   const useKI=!!(KEY&&localStorage.getItem('bp_ki_consent')==='1');
+  if(!useKI&&localStorage.getItem('bp_ki_consent')==='1'){
+    document.getElementById('procBar').style.display='none';
+    showAlert('KI-Modus aktiv, aber API-Key fehlt. Bitte in den Einstellungen neu eingeben und speichern.','am');
+    return;
+  }
   document.getElementById('procTxt').textContent=`"${file.name}" wird ${useKI?'mit KI':'lokal'} ausgelesen...`;
   const isPdf=file.type==='application/pdf',isImg=file.type.startsWith('image/');
   if(!isPdf&&!isImg){document.getElementById('procBar').style.display='none';showAlert('Nur PDF-Dateien werden unterstützt.','am');return;}
@@ -1414,6 +1501,20 @@ async function processFile(file,type){
       const text=await extractTextFromFile(file);
       if(!text||text.trim().length<10){document.getElementById('procBar').style.display='none';showAlert('Konnte Beleg nicht auslesen. Bitte über "+ Manuell" eingeben.','am');return;}
       p=parseOcrText(text,type);
+    }
+    const _pWarns=[];
+    const _pName=p.lief||p.kund||p.haend||'';
+    if(!_pName||_pName.length<2)_pWarns.push('Name fehlt oder zu kurz');
+    if(!p.brutto||p.brutto<=0)_pWarns.push('Betrag ist 0 — bitte prüfen');
+    if(p.netto>0&&p.brutto>0&&p.mwst>0&&Math.abs(p.netto-p.brutto)<0.01)_pWarns.push('Netto = Brutto, obwohl MwSt > 0 — Beträge prüfen');
+    if(p.hint)_pWarns.push(p.hint);
+    if(_pWarns.length){
+      p.needsReview=true;
+      if(!confirm(`⚠ Beleg erkannt, aber unsicher:\n\n• ${_pWarns.join('\n• ')}\n\nTrotzdem speichern und zur Prüfung markieren?`)){
+        document.getElementById('procBar').style.display='none';
+        showAlert('Beleg nicht gespeichert.','am');
+        return;
+      }
     }
     p.id=++uid;p.mand=document.getElementById('mandSel').value||(D.mand[0]?.name||'');
     const name=p.lief||p.kund||p.haend||'';
@@ -1434,11 +1535,23 @@ async function processFile(file,type){
     rDash();
     showAlert(`✓ "${name||'Beleg'}" wurde eingetragen! Bitte Felder prüfen und ggf. korrigieren.`,'gn');
   }catch(err){
-    if(useKI&&err.message&&(err.message.includes('fetch')||err.message.includes('Network')||err.message.includes('CORS')||err.message.includes('401'))){
-      showAlert('Verbindung zu Anthropic fehlgeschlagen. Bitte API-Key in den Einstellungen prüfen oder "+ Manuell" nutzen.','am');
-    } else {
-      showAlert('Konnte Beleg nicht auslesen. Bitte über "+ Manuell" eingeben.','am');
+    document.getElementById('procBar').style.display='none';
+    if(!useKI){showAlert('Konnte Beleg nicht auslesen. Bitte über "+ Manuell" eingeben.','am');return;}
+    const m=err.message||'';
+    if(m.includes('HTTP_401')||m.toLowerCase().includes('api-key')||m.toLowerCase().includes('authentication')){
+      showAlert('API-Key ungültig — bitte in den Einstellungen prüfen und neu speichern.','rd');
+    }else if(m.includes('HTTP_429')||m.toLowerCase().includes('rate limit')){
+      showAlert('Anthropic: Rate-Limit erreicht — bitte 1 Minute warten und erneut versuchen.','am');
+    }else if(/HTTP_5\d\d/.test(m)){
+      showAlert('Anthropic-Server antwortet mit Fehler. Bitte später erneut versuchen.','am');
+    }else if(m.toLowerCase().includes('failed to fetch')||m.toLowerCase().includes('networkerror')||m.toLowerCase().includes('network')){
+      showAlert('Netzwerkfehler — Verbindung zu Anthropic blockiert. Bitte Netzwerk und API-Key prüfen.','am');
+    }else if(m.toLowerCase().includes('json')||m.toLowerCase().includes('syntax')){
+      showAlert('KI-Antwort war kein gültiges JSON — bitte nochmal versuchen.','am');
+    }else{
+      showAlert('KI-Fehler: '+m.slice(0,140),'am');
     }
+    return;
   }
   document.getElementById('procBar').style.display='none';
 }
@@ -1548,7 +1661,6 @@ function saveSetup(){
   const name=document.getElementById('sName').value.trim();
   if(!name){document.getElementById('sName').focus();showAlert('Bitte deinen Namen eingeben.','rd');return;}
   const beruf=document.getElementById('sBeruf').value.trim();
-
   const land=document.getElementById('sLand')?.value||'de';
   localStorage.setItem('bp_n',name);localStorage.setItem('bp_b',beruf);
   localStorage.setItem('bp_setup_done','1');
@@ -1557,9 +1669,8 @@ function saveSetup(){
     const raw=document.getElementById('customRateInput')?.value||'';
     if(raw)localStorage.setItem('bp_custom_rates',raw);
   }
-  applyUser(name,beruf);
-  document.getElementById('setupScr').style.display='none';
   showAlert(`Willkommen ${name}! MIKU-BelegProfi ist bereit.`,'gn');
+  startApp();
 }
 function skipSetup(){
   const name=document.getElementById('sName').value.trim()||'Handwerker';
@@ -1636,7 +1747,7 @@ function savSet(){
       const stK2=document.getElementById('stK');if(stK2)stK2.value='';
     }
   }
-  applyUser(name||localStorage.getItem('bp_n')||'Handwerker',beruf,localStorage.getItem('bp_ki_consent')==='1'?localStorage.getItem('bp_k')||'':'');
+  applyUser(name||localStorage.getItem('bp_n')||'Handwerker',beruf||localStorage.getItem('bp_b')||'',localStorage.getItem('bp_ki_consent')==='1'?localStorage.getItem('bp_k')||'':'');
   closeOv('mSet');showAlert('Einstellungen gespeichert!','gn');
 }
 
@@ -1672,6 +1783,10 @@ function fillMwDropdowns(rates){
     sel.innerHTML=rates.map(r=>`<option value="${r.v}">${r.l}</option>`).join('')+'<option value="custom">Eigene Eingabe...</option>';
     if([...sel.options].some(o=>o.value===cur))sel.value=cur;
   });
+  const _flag={de:'🇩🇪',at:'🇦🇹',ch:'🇨🇭'}[currentLand]||'🏳️';
+  const _name={de:'Deutschland',at:'Österreich',ch:'Schweiz'}[currentLand]||'Inland';
+  const _eHkOpt=document.getElementById('eHkInland');if(_eHkOpt)_eHkOpt.textContent=_flag+' '+_name;
+  const _eTab=document.getElementById('eTabInland');if(_eTab)_eTab.textContent=_flag+' Inland';
 }
 function onMwChange(selId,inputId){
   const sel=document.getElementById(selId);
@@ -1699,16 +1814,33 @@ function showAlert(msg,t='gn'){
 function autoSave(){
   try{localStorage.setItem('bp_data',JSON.stringify(D));}catch(e){}
 }
-function saveData(){
+async function saveData(){
   const jahr=new Date().getFullYear();
   const datum=new Date().toISOString().slice(0,10);
+  const name=`MIKU-BelegProfi_${jahr}_${datum}.json`;
   const payload={version:1,exportDatum:datum,data:D};
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`MIKU-BelegProfi_${jahr}_${datum}.json`;
-  a.click();
-  showAlert(`Daten gespeichert als MIKU-BelegProfi_${jahr}_${datum}.json`,'gn');
+  const json=JSON.stringify(payload,null,2);
+  if(window.showSaveFilePicker){
+    try{
+      const handle=await window.showSaveFilePicker({
+        suggestedName:name,
+        types:[{description:'JSON-Datei',accept:{'application/json':['.json']}}]
+      });
+      const writable=await handle.createWritable();
+      await writable.write(json);
+      await writable.close();
+      showAlert(`Daten gespeichert als ${name}`,'gn');
+    }catch(e){
+      if(e.name!=='AbortError')showAlert('Speichern fehlgeschlagen.','rd');
+    }
+  } else {
+    const blob=new Blob([json],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=name;
+    a.click();
+    showAlert(`Daten gespeichert als ${name}`,'gn');
+  }
 }
 function loadData(e){
   const file=e.target.files[0];if(!file)return;
@@ -1742,23 +1874,95 @@ function resetApp(){
   location.reload();
 }
 
+// ── LICENSE ───────────────────────────────────────────────────────────────
+function _mulberry32(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function licenseHash(k){let h=0;for(let i=0;i<k.length;i++)h=(h*31+k.charCodeAt(i))%2147483647;return h;}
+const VALID_HASHES=(function(){
+  const rng=_mulberry32(0x4D494B55);
+  const C='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  const seen=new Set();const hashes=new Set();
+  while(seen.size<200){
+    const p1=Array.from({length:4},()=>C[Math.floor(rng()*C.length)]).join('');
+    const p2=Array.from({length:4},()=>C[Math.floor(rng()*C.length)]).join('');
+    const k=`MIKU-2026-${p1}-${p2}`;
+    if(!seen.has(k)){seen.add(k);hashes.add(licenseHash(k));}
+  }
+  return hashes;
+})();
+function saveLicense(){
+  const k=(document.getElementById('licKey').value||'').trim().toUpperCase();
+  const err=document.getElementById('licErr');
+  if(VALID_HASHES.has(licenseHash(k))){
+    localStorage.setItem('bp_license_ok','1');
+    err.style.display='none';
+    document.getElementById('licenseScr').style.display='none';
+    startApp();
+  } else {
+    err.style.display='block';
+    document.getElementById('licKey').focus();
+  }
+}
+
 // ── PRIVACY & SPLASH ──────────────────────────────────────────────────────
 function acceptPrivacyKI(){
   localStorage.setItem('bp_privacy_ok','1');
   localStorage.setItem('bp_ki_consent','1');
-  document.getElementById('privacyScr').style.display='none';
   startApp();
 }
 function acceptPrivacyLokal(){
   localStorage.setItem('bp_privacy_ok','1');
   localStorage.removeItem('bp_ki_consent');
-  document.getElementById('privacyScr').style.display='none';
+  startApp();
+}
+function saveKiSetup(){
+  const name=document.getElementById('kiName').value.trim();
+  if(!name){document.getElementById('kiName').focus();showAlert('Bitte deinen Namen eingeben.','rd');return;}
+  const beruf=document.getElementById('kiBeruf').value.trim();
+  const key=document.getElementById('kiKey').value.trim();
+  localStorage.setItem('bp_n',name);localStorage.setItem('bp_b',beruf);
+  localStorage.setItem('bp_setup_done','1');
+  if(key){
+    localStorage.setItem('bp_k',key);
+    showAlert(`Willkommen ${name}! MIKU-BelegProfi mit KI-Automatik ist bereit.`,'gn');
+  } else {
+    showAlert(`Willkommen ${name}! Kein API-Key eingegeben — bitte später in den Einstellungen eintragen.`,'am');
+  }
   startApp();
 }
 function startApp(){
-  const n=localStorage.getItem('bp_n'),b=localStorage.getItem('bp_b')||'',k=localStorage.getItem('bp_k')||'';
+  // Alle Overlay-Screens schließen
+  document.getElementById('privacyScr').style.display='none';
+  document.getElementById('setupScr').style.display='none';
+  const ks=document.getElementById('kiSetupScr');if(ks)ks.style.display='none';
+  const ls=document.getElementById('licenseScr');if(ls)ls.style.display='none';
+
+  // Stufe 0: Lizenz prüfen
+  if(!localStorage.getItem('bp_license_ok')){
+    if(ls)ls.style.display='flex';
+    return;
+  }
+
+  // Stufe 1: Datenschutz prüfen
+  if(!localStorage.getItem('bp_privacy_ok')){
+    document.getElementById('privacyScr').style.display='flex';
+    return;
+  }
+
+  // Stufe 2: Setup prüfen
+  const n=localStorage.getItem('bp_n');
   const setupDone=localStorage.getItem('bp_setup_done');
-  // Init MwSt dropdowns
+  const kiConsent=localStorage.getItem('bp_ki_consent')==='1';
+  if(!n||!setupDone){
+    if(kiConsent){
+      const ks2=document.getElementById('kiSetupScr');if(ks2)ks2.style.display='flex';
+    } else {
+      document.getElementById('setupScr').style.display='flex';
+    }
+    return;
+  }
+
+  // Stufe 3: Alles OK – App starten
+  const b=localStorage.getItem('bp_b')||'',k=localStorage.getItem('bp_k')||'';
   const land=localStorage.getItem('bp_land')||'de';
   currentLand=land;
   if(land==='custom'){
@@ -1768,10 +1972,7 @@ function startApp(){
   } else {
     fillMwDropdowns(MWST_RATES[land]||MWST_RATES.de);
   }
-  if(n&&setupDone){
-    applyUser(n,b,k);
-    document.getElementById('setupScr').style.display='none';
-  }
+  applyUser(n,b,k);
   try{
     const saved=localStorage.getItem('bp_data');
     if(saved){
@@ -1787,16 +1988,8 @@ function startApp(){
 (function(){
   const splash=document.getElementById('splashScr');
   setTimeout(()=>{
-    splash.classList.add('fade-out');
-    setTimeout(()=>{
-      splash.style.display='none';
-      const privacyOk=localStorage.getItem('bp_privacy_ok');
-      if(!privacyOk){
-        document.getElementById('privacyScr').style.display='flex';
-      } else {
-        startApp();
-      }
-    },600);
+    splash.style.display='none';
+    startApp();
   },2500);
 })();
 </script>
