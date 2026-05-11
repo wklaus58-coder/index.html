@@ -409,6 +409,60 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
   return fflate.zipSync(files, {level: 0});
 }
 
+function buildXlsxMulti(sheetDefs){
+  // sheetDefs: [{name, rows2d, colWidths, sumRows?, hasFilter?}]
+  const xmlEsc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+  const sst=[],sstMap={};
+  const si=v=>{const s=String(v==null?'':v);if(sstMap[s]===undefined){sstMap[s]=sst.length;sst.push(s);}return sstMap[s];};
+  sheetDefs.forEach(({rows2d})=>rows2d.forEach(row=>row.forEach(v=>{if(typeof v!=='number')si(v);})));
+  const sheetXmls=sheetDefs.map(({rows2d,colWidths,sumRows,hasFilter,rowStyleMap})=>{
+    const sr=sumRows||new Set();
+    const rsm=rowStyleMap||new Map();
+    const lastRi=rows2d.length-1;
+    const hdrHt=hasFilter?' ht="22" customHeight="1"':' ht="28" customHeight="1"';
+    const sheetRows=rows2d.map((row,ri)=>{
+      const isHdr=ri===0;
+      const isSum=sr.has(ri)||ri===lastRi;
+      const oi=(!isHdr&&!isSum&&rsm.has(ri))?rsm.get(ri):-1;
+      const cells=row.map((val,ci)=>{
+        const col=ci<26?String.fromCharCode(65+ci):'A'+String.fromCharCode(65+ci-26);
+        const addr=col+(ri+1);
+        let s;
+        if(isHdr)s=2;
+        else if(isSum)s=typeof val==='number'?3:4;
+        else if(oi>=0)s=typeof val==='number'?6+oi*2:5+oi*2;
+        else s=typeof val==='number'?1:0;
+        if(typeof val==='number')return `<c r="${addr}" s="${s}"><v>${val}</v></c>`;
+        return `<c r="${addr}" t="s" s="${s}"><v>${si(val)}</v></c>`;
+      });
+      const rh=isHdr?hdrHt:isSum?' ht="20" customHeight="1"':oi>=0?' ht="19" customHeight="1"':' ht="18" customHeight="1"';
+      return `<row r="${ri+1}"${rh}>${cells.join('')}</row>`;
+    });
+    const cols=colWidths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${Math.min(w,50)}" customWidth="1"/>`).join('');
+    const nCols=rows2d[0]?.length||1;
+    const lastCol=nCols>26?'A'+String.fromCharCode(65+nCols-27):String.fromCharCode(65+nCols-1);
+    const filter=hasFilter?`<autoFilter ref="A1:${lastCol}1"/>`:'';
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetViews><sheetView workbookViewId="0"><selection activeCell="A2" sqref="A2"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="16" customHeight="1"/><cols>${cols}</cols><sheetData>${sheetRows.join('')}</sheetData>${filter}</worksheet>`;
+  });
+  const sstXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${sst.length}" uniqueCount="${sst.length}">${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}</sst>`;
+  // Extra fills (indices 4-19): income(5) + expense(5) + bar(5) + result-detail(1)
+  const xFillHex=['C8E6C9','F1F8F1','E4F4E4','D7EFD7','CAE9CA','FFCCBC','FDF3EF','FAE8E0','F7DDD1','F4D2C2','FFF9C4','FFFFF5','FEFDE8','FDFBDB','FCF9CE','E8EEF8'];
+  const fillsXml='<fills count="20"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1B3A6B"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFC000"/></patternFill></fill>'+xFillHex.map(c=>`<fill><patternFill patternType="solid"><fgColor rgb="FF${c}"/></patternFill></fill>`).join('')+'</fills>';
+  // Override xf pairs: [fillId, fontMode] fontMode 0=normal 1=bold-dark(font2) 2=bold-white(font1)
+  const ovSpec=[[4,1],[5,0],[6,0],[7,0],[8,0],[9,1],[10,0],[11,0],[12,0],[13,0],[14,1],[15,0],[16,0],[17,0],[18,0],[2,2],[19,0]];
+  const extraXfs=ovSpec.flatMap(([fi,fm])=>{const font=fm===2?1:fm===1?2:0;const af=font>0?' applyFont="1"':'';return[`<xf numFmtId="0" fontId="${font}" fillId="${fi}" borderId="1" xfId="0" applyBorder="1" applyFill="1"${af}><alignment horizontal="left" vertical="center"/></xf>`,`<xf numFmtId="164" fontId="${font}" fillId="${fi}" borderId="1" xfId="0" applyBorder="1" applyFill="1" applyNumberFormat="1"${af}><alignment horizontal="right" vertical="center"/></xf>`];}).join('');
+  const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00\ &quot;&#8364;&quot;"/></numFmts><fonts count="3"><font><sz val="12"/><name val="Calibri"/><color rgb="FF1A1A1A"/></font><font><b/><sz val="13"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font><font><b/><sz val="12"/><name val="Calibri"/><color rgb="FF1A1A1A"/></font></fonts>${fillsXml}<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right><top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="39"><xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyNumberFormat="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="164" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf>${extraXfs}</cellXfs></styleSheet>`;
+  const nc=sheetDefs.length;
+  const wbXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheetDefs.map((s,i)=>`<sheet name="${xmlEsc(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`;
+  const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheetDefs.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId${nc+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/><Relationship Id="rId${nc+2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+  const ctXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${sheetDefs.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
+  const appRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
+  const enc=s=>fflate.strToU8(s);
+  const files={'[Content_Types].xml':enc(ctXml),'_rels/.rels':enc(appRels),'xl/workbook.xml':enc(wbXml),'xl/_rels/workbook.xml.rels':enc(wbRels),'xl/sharedStrings.xml':enc(sstXml),'xl/styles.xml':enc(stylesXml)};
+  sheetDefs.forEach((_,i)=>{files[`xl/worksheets/sheet${i+1}.xml`]=enc(sheetXmls[i]);});
+  return fflate.zipSync(files,{level:0});
+}
+
 </script>
 </head>
 <body>
@@ -1119,16 +1173,97 @@ function rExp(){
   document.getElementById('expTb').innerHTML=rows.map(r=>`<tr><td class="mono">${r.dat}</td><td><span class="badge ${r.art==='Eingang'?'b-bl':r.art==='Ausgang'?'b-gn':'b-gr'}">${r.art}</span></td><td class="bold">${r.nm}</td><td class="mono">${f2(r.netto)}</td><td>${r.mwst}%</td><td class="mono">${f2(r.brutto)}</td><td>${hB(r.herk)}</td><td>${kB(r.kat)}</td><td class="muted" style="font-size:11px">${r.hint||'—'}</td></tr>`).join('');
 }
 function doExp(type){
-  const allRates=new Set();
-  const allData=[];
-  D.ein.forEach(r=>{if(type==='alle'||type==='ein'||(type==='ausl'&&r.herk!=='inland')){allRates.add(r.mwst);allData.push({...r,art:'Eingang',nm:r.lief,netto:r.netto});}});
-  D.aus.forEach(r=>{if(type==='alle'||type==='aus'){allRates.add(r.mwst);const nm=(r.kund||'').split(',')[0].trim();allData.push({...r,art:'Ausgang',nm,netto:r.netto});}});
-  D.bar.forEach(r=>{if(type==='alle'){const n=+(r.brutto/(1+r.mwst/100)).toFixed(2);allRates.add(r.mwst);allData.push({...r,art:'Bar',nm:r.haend,netto:n});}});
-  // Spalten nach Land-Einstellung — nicht nach vorhandenen Daten
   const landRateMap={de:[0,7,19],at:[0,10,13,20],ch:[0,2.6,3.8,8.1]};
+  const allRates=new Set();
+  D.ein.forEach(r=>{if(type==='alle'||type==='ein'||(type==='ausl'&&r.herk!=='inland'))allRates.add(r.mwst);});
+  D.aus.forEach(r=>{if(type==='alle'||type==='aus')allRates.add(r.mwst);});
+  D.bar.forEach(r=>{if(type==='alle')allRates.add(r.mwst);});
+  // Spalten nach Land-Einstellung — nicht nach vorhandenen Daten
   const rates=landRateMap[currentLand]||[...allRates].sort((a,b)=>a-b);
   const h=['Datum','Bank/Bar','Belegart','Name'];
   rates.forEach(v=>{const lbl=v+'%';h.push('Brutto '+lbl,'Netto '+lbl,'MwSt '+lbl);});
+  const colW=h.map((_,ci)=>{
+    if(ci===0)return 11;
+    if(ci===1||ci===2)return 13;
+    if(ci===3)return 31;
+    if(ci>=4&&ci<=9)return 13;
+    return 15;
+  });
+  if(type==='alle'){
+    const allData=[];
+    D.ein.forEach(r=>{allRates.add(r.mwst);allData.push({...r,art:'Eingang',nm:r.lief,netto:r.netto});});
+    D.aus.forEach(r=>{allRates.add(r.mwst);const nm=(r.kund||'').split(',')[0].trim();allData.push({...r,art:'Ausgang',nm,netto:r.netto});});
+    D.bar.forEach(r=>{const n=+(r.brutto/(1+r.mwst/100)).toFixed(2);allRates.add(r.mwst);allData.push({...r,art:'Bar',nm:r.haend,netto:n});});
+    const getSums=art=>rates.map(v=>{
+      const rr=allData.filter(r=>r.mwst===v&&r.art===art);
+      const sB=+rr.reduce((s,r)=>s+r.brutto,0).toFixed(2);
+      const sN=+rr.reduce((s,r)=>s+r.netto,0).toFixed(2);
+      return{sB,sN,sMwSt:+((sB-sN).toFixed(2))};
+    });
+    const sAus=getSums('Ausgang'),sEin=getSums('Eingang'),sBar=getSums('Bar');
+    const tB=s=>+s.reduce((a,x)=>a+x.sB,0).toFixed(2);
+    const tN=s=>+s.reduce((a,x)=>a+x.sN,0).toFixed(2);
+    const tM=s=>+s.reduce((a,x)=>a+x.sMwSt,0).toFixed(2);
+    const datum=new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const nR=rates.length;
+    const ubRows=[
+      ['MIKU-BelegProfi — Steuerauswertung','','','Export: '+datum],
+      ['','','',''],
+      ['Bezeichnung','Brutto','Netto','MwSt/Vorsteuer'],
+      ['EINNAHMEN (Ausgangsrechnungen)','','',''],
+      ...rates.map((v,i)=>['  Steuersatz '+v+'%',sAus[i].sB,sAus[i].sN,sAus[i].sMwSt]),
+      ['SUMME EINNAHMEN',tB(sAus),tN(sAus),tM(sAus)],
+      ['','','',''],
+      ['AUSGABEN (Eingangsrechnungen)','','',''],
+      ...rates.map((v,i)=>['  Steuersatz '+v+'%',sEin[i].sB,sEin[i].sN,sEin[i].sMwSt]),
+      ['SUMME EINGANGSRECHNUNGEN',tB(sEin),tN(sEin),tM(sEin)],
+      ['','','',''],
+      ['BARBELEGE','','',''],
+      ...rates.map((v,i)=>['  Steuersatz '+v+'%',sBar[i].sB,sBar[i].sN,sBar[i].sMwSt]),
+      ['SUMME BARBELEGE',tB(sBar),tN(sBar),tM(sBar)],
+      ['','','',''],
+      ['ERGEBNIS (Einnahmen − Ausgaben − Barbelege)','','',''],
+      ['  Netto-Ergebnis','',+(tN(sAus)-tN(sEin)-tN(sBar)).toFixed(2),''],
+      ['  MwSt-Zahllast','','',+(tM(sAus)-tM(sEin)-tM(sBar)).toFixed(2)],
+      ['BRUTTO-DIFFERENZ',+(tB(sAus)-tB(sEin)-tB(sBar)).toFixed(2),'',''],
+    ];
+    const ubSumRows=new Set([4+nR,7+2*nR,10+3*nR]);
+    const ubStyleMap=new Map();
+    ubStyleMap.set(2,15);
+    ubStyleMap.set(3,0);for(let i=0;i<nR;i++)ubStyleMap.set(4+i,1+i);
+    ubStyleMap.set(6+nR,5);for(let i=0;i<nR;i++)ubStyleMap.set(7+nR+i,6+i);
+    ubStyleMap.set(9+2*nR,10);for(let i=0;i<nR;i++)ubStyleMap.set(10+2*nR+i,11+i);
+    ubStyleMap.set(12+3*nR,15);ubStyleMap.set(13+3*nR,16);ubStyleMap.set(14+3*nR,16);
+    const mkRows=data=>{
+      const drs=data.map(r=>{
+        const zahl=r.zahl||(r.art==='Bar'?'Bar':'Bank');
+        const row=[r.dat,zahl.charAt(0).toUpperCase()+zahl.slice(1),r.art,r.nm];
+        rates.forEach(v=>{if(r.mwst===v){row.push(+(r.brutto.toFixed(2)),+(r.netto.toFixed(2)),+((r.brutto-r.netto).toFixed(2)));}else{row.push('','','');}});
+        return row;
+      });
+      const sr=['SUMME','','',''];
+      rates.forEach(v=>{const rr=data.filter(r=>r.mwst===v);const sB=+rr.reduce((s,r)=>s+r.brutto,0).toFixed(2);const sN=+rr.reduce((s,r)=>s+r.netto,0).toFixed(2);sr.push(sB,sN,+((sB-sN).toFixed(2)));});
+      return[h,...drs,sr];
+    };
+    const einData=D.ein.map(r=>({...r,art:'Eingang',nm:r.lief,netto:r.netto}));
+    const ausData=D.aus.map(r=>({...r,art:'Ausgang',nm:(r.kund||'').split(',')[0].trim(),netto:r.netto}));
+    const barData=D.bar.map(r=>({...r,art:'Bar',nm:r.haend,netto:+(r.brutto/(1+r.mwst/100)).toFixed(2)}));
+    const xlsxData=buildXlsxMulti([
+      {name:'\xdcbersicht',rows2d:ubRows,colWidths:[44,16,16,20],sumRows:ubSumRows,hasFilter:false,rowStyleMap:ubStyleMap},
+      {name:'Eingangsrechnungen',rows2d:mkRows(einData),colWidths:colW,hasFilter:true},
+      {name:'Ausgangsrechnungen',rows2d:mkRows(ausData),colWidths:colW,hasFilter:true},
+      {name:'Barbelege',rows2d:mkRows(barData),colWidths:colW,hasFilter:true},
+    ]);
+    const blob=new Blob([xlsxData],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`MIKU-BelegProfi_Steuerberater_${new Date().toISOString().slice(0,10)}.xlsx`;
+    a.click();
+    return;
+  }
+  const allData=[];
+  D.ein.forEach(r=>{if(type==='ein'||(type==='ausl'&&r.herk!=='inland')){allRates.add(r.mwst);allData.push({...r,art:'Eingang',nm:r.lief,netto:r.netto});}});
+  D.aus.forEach(r=>{if(type==='aus'){allRates.add(r.mwst);const nm=(r.kund||'').split(',')[0].trim();allData.push({...r,art:'Ausgang',nm,netto:r.netto});}});
   const rows=allData.map(r=>{
     const zahl=r.zahl||(r.art==='Bar'?'Bar':'Bank');
     const row=[r.dat,zahl.charAt(0).toUpperCase()+zahl.slice(1),r.art,r.nm];
@@ -1139,21 +1274,8 @@ function doExp(type){
     return row;
   });
   const sumRow=['SUMME','','',''];
-  rates.forEach(v=>{
-    const rr=allData.filter(r=>r.mwst===v);
-    const sB=+rr.reduce((s,r)=>s+r.brutto,0).toFixed(2);
-    const sN=+rr.reduce((s,r)=>s+r.netto,0).toFixed(2);
-    sumRow.push(sB,sN,+((sB-sN).toFixed(2)));
-  });
-  // Feste Spaltenbreiten nach Vorgabe: A=11, B/C=13, D=31, E-J=13, K-M=15
+  rates.forEach(v=>{const rr=allData.filter(r=>r.mwst===v);const sB=+rr.reduce((s,r)=>s+r.brutto,0).toFixed(2);const sN=+rr.reduce((s,r)=>s+r.netto,0).toFixed(2);sumRow.push(sB,sN,+((sB-sN).toFixed(2)));});
   const allRows=[h,...rows,sumRow];
-  const colW=h.map((_,ci)=>{
-    if(ci===0) return 11;        // A: Datum
-    if(ci===1||ci===2) return 13; // B/C: Bank/Bar, Belegart
-    if(ci===3) return 31;         // D: Name
-    if(ci>=4&&ci<=9) return 13;  // E-J: MwSt-Gruppen
-    return 15;                    // K-M: weitere Spalten
-  });
   const boldSet=new Set([0,allRows.length-1]);
   const xlsxData=buildXlsx(allRows,colW,boldSet);
   const blob=new Blob([xlsxData],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
