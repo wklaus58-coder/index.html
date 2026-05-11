@@ -1796,10 +1796,12 @@ function saveSetup(){
 }
 function skipSetup(){
   const name=document.getElementById('sName').value.trim()||'Handwerker';
+  const land=document.getElementById('sLand')?.value||'de';
   localStorage.setItem('bp_n',name);
   localStorage.setItem('bp_setup_done','1');
-  applyUser(name,'','');
-  document.getElementById('setupScr').style.display='none';
+  localStorage.setItem('bp_land',land);
+  localStorage.removeItem('bp_ki_consent');
+  startApp();
 }
 function revokeKI(){
   localStorage.removeItem('bp_ki_consent');
@@ -2047,7 +2049,8 @@ function saveKiSetup(){
     localStorage.setItem('bp_k',key);
     showAlert(`Willkommen ${name}! MIKU-BelegProfi mit KI-Automatik ist bereit.`,'gn');
   } else {
-    showAlert(`Willkommen ${name}! Kein API-Key eingegeben — bitte später in den Einstellungen eintragen.`,'am');
+    localStorage.removeItem('bp_ki_consent');
+    showAlert(`Willkommen ${name}! Kein API-Key eingegeben — lokaler Modus aktiv.`,'am');
   }
   startApp();
 }
@@ -2084,7 +2087,7 @@ function startApp(){
   }
 
   // Stufe 3: Alles OK – App starten
-  const b=localStorage.getItem('bp_b')||'',k=localStorage.getItem('bp_k')||'';
+  const b=localStorage.getItem('bp_b')||'',k=localStorage.getItem('bp_ki_consent')==='1'?localStorage.getItem('bp_k')||'':'';
   const land=localStorage.getItem('bp_land')||'de';
   currentLand=land;
   if(land==='custom'){
