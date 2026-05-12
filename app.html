@@ -249,6 +249,16 @@ tr.editing td{background:#F0F4FF!important;}
 </script>
 <script>
 // Minimal xlsx builder using fflate for ZIP compression
+// Converts "DD.MM.YYYY" to Excel serial number (days since 1899-12-30)
+function datToExcel(s){
+  const p=s.split('.');
+  if(p.length!==3)return null;
+  const d=+p[0],m=+p[1],y=+p[2];
+  if(!d||!m||!y||y<1900||y>2100)return null;
+  const serial=Math.round((new Date(y,m-1,d)-new Date(1899,11,30))/86400000);
+  return serial>0?serial:null;
+}
+
 // Usage: buildXlsx(rows2d, colWidths) -> Uint8Array
 function buildXlsx(rows2d, colWidths, boldRows) {
   // rows2d: array of arrays (strings/numbers)
@@ -293,6 +303,10 @@ function buildXlsx(rows2d, colWidths, boldRows) {
       } else {
         styleIdx = (typeof val === 'number') ? 1 : 0; // normal
       }
+      if(ci===0&&!isHeader&&!isSumme&&typeof val==='string'){
+        const serial=datToExcel(val);
+        if(serial!==null)return `<c r="${addr}" s="5"><v>${serial}</v></c>`;
+      }
       if(typeof val === 'number') {
         return `<c r="${addr}" s="${styleIdx}"><v>${val}</v></c>`;
       } else {
@@ -332,8 +346,9 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
   // Professional styles: 12pt Calibri data, 13pt bold header, currency € format, gold SUMME, blue header
   const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<numFmts count="1">
+<numFmts count="2">
 <numFmt numFmtId="164" formatCode="#,##0.00\ &quot;€&quot;"/>
+<numFmt numFmtId="165" formatCode="DD.MM.YYYY"/>
 </numFmts>
 <fonts count="3">
 <font><sz val="12"/><name val="Calibri"/><color rgb="FF1A1A1A"/></font>
@@ -357,12 +372,13 @@ ${sst.map(s=>`<si><t xml:space="preserve">${xmlEsc(s)}</t></si>`).join('')}
 </border>
 </borders>
 <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-<cellXfs count="5">
+<cellXfs count="6">
 <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf>
 <xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyNumberFormat="1"><alignment horizontal="right" vertical="center"/></xf>
 <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
 <xf numFmtId="164" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1"><alignment horizontal="right" vertical="center"/></xf>
 <xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf>
+<xf numFmtId="165" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyNumberFormat="1"><alignment horizontal="left" vertical="center"/></xf>
 </cellXfs>
 </styleSheet>`;
 
@@ -432,6 +448,7 @@ function buildXlsxMulti(sheetDefs){
         else if(isSum)s=typeof val==='number'?3:4;
         else if(oi>=0)s=typeof val==='number'?6+oi*2:5+oi*2;
         else s=typeof val==='number'?1:0;
+        if(ci===0&&!isHdr&&!isSum&&typeof val==='string'){const serial=datToExcel(val);if(serial!==null)return `<c r="${addr}" s="39"><v>${serial}</v></c>`;}
         if(typeof val==='number')return `<c r="${addr}" s="${s}"><v>${val}</v></c>`;
         return `<c r="${addr}" t="s" s="${s}"><v>${si(val)}</v></c>`;
       });
@@ -451,7 +468,7 @@ function buildXlsxMulti(sheetDefs){
   // Override xf pairs: [fillId, fontMode] fontMode 0=normal 1=bold-dark(font2) 2=bold-white(font1)
   const ovSpec=[[4,1],[5,0],[6,0],[7,0],[8,0],[9,1],[10,0],[11,0],[12,0],[13,0],[14,1],[15,0],[16,0],[17,0],[18,0],[2,2],[19,0]];
   const extraXfs=ovSpec.flatMap(([fi,fm])=>{const font=fm===2?1:fm===1?2:0;const af=font>0?' applyFont="1"':'';return[`<xf numFmtId="0" fontId="${font}" fillId="${fi}" borderId="1" xfId="0" applyBorder="1" applyFill="1"${af}><alignment horizontal="left" vertical="center"/></xf>`,`<xf numFmtId="164" fontId="${font}" fillId="${fi}" borderId="1" xfId="0" applyBorder="1" applyFill="1" applyNumberFormat="1"${af}><alignment horizontal="right" vertical="center"/></xf>`];}).join('');
-  const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00\ &quot;&#8364;&quot;"/></numFmts><fonts count="3"><font><sz val="12"/><name val="Calibri"/><color rgb="FF1A1A1A"/></font><font><b/><sz val="13"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font><font><b/><sz val="12"/><name val="Calibri"/><color rgb="FF1A1A1A"/></font></fonts>${fillsXml}<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right><top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="39"><xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyNumberFormat="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="164" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf>${extraXfs}</cellXfs></styleSheet>`;
+  const stylesXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="#,##0.00\ &quot;&#8364;&quot;"/><numFmt numFmtId="165" formatCode="DD.MM.YYYY"/></numFmts><fonts count="3"><font><sz val="12"/><name val="Calibri"/><color rgb="FF1A1A1A"/></font><font><b/><sz val="13"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font><font><b/><sz val="12"/><name val="Calibri"/><color rgb="FF1A1A1A"/></font></fonts>${fillsXml}<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right><top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="40"><xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyNumberFormat="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="164" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyNumberFormat="1"><alignment horizontal="right" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="left" vertical="center"/></xf>${extraXfs}<xf numFmtId="165" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyNumberFormat="1"><alignment horizontal="left" vertical="center"/></xf></cellXfs></styleSheet>`;
   const nc=sheetDefs.length;
   const wbXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheetDefs.map((s,i)=>`<sheet name="${xmlEsc(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`;
   const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheetDefs.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId${nc+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/><Relationship Id="rId${nc+2}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
@@ -1245,9 +1262,9 @@ function doExp(type){
       rates.forEach(v=>{const rr=data.filter(r=>r.mwst===v);const sB=+rr.reduce((s,r)=>s+r.brutto,0).toFixed(2);const sN=+rr.reduce((s,r)=>s+r.netto,0).toFixed(2);sr.push(sB,sN,+((sB-sN).toFixed(2)));});
       return[h,...drs,sr];
     };
-    const einData=D.ein.map(r=>({...r,art:'Eingang',nm:r.lief,netto:r.netto}));
-    const ausData=D.aus.map(r=>({...r,art:'Ausgang',nm:(r.kund||'').split(',')[0].trim(),netto:r.netto}));
-    const barData=D.bar.map(r=>({...r,art:'Bar',nm:r.haend,netto:+(r.brutto/(1+r.mwst/100)).toFixed(2)}));
+    const einData=srt(D.ein.map(r=>({...r,art:'Eingang',nm:r.lief,netto:r.netto})),'dat',1);
+    const ausData=srt(D.aus.map(r=>({...r,art:'Ausgang',nm:(r.kund||'').split(',')[0].trim(),netto:r.netto})),'dat',1);
+    const barData=srt(D.bar.map(r=>({...r,art:'Bar',nm:r.haend,netto:+(r.brutto/(1+r.mwst/100)).toFixed(2)})),'dat',1);
     const xlsxData=buildXlsxMulti([
       {name:'\xdcbersicht',rows2d:ubRows,colWidths:[44,16,16,20],sumRows:ubSumRows,hasFilter:false,rowStyleMap:ubStyleMap},
       {name:'Eingangsrechnungen',rows2d:mkRows(einData),colWidths:colW,hasFilter:true},
@@ -1264,6 +1281,7 @@ function doExp(type){
   const allData=[];
   D.ein.forEach(r=>{if(type==='ein'||(type==='ausl'&&r.herk!=='inland')){allRates.add(r.mwst);allData.push({...r,art:'Eingang',nm:r.lief,netto:r.netto});}});
   D.aus.forEach(r=>{if(type==='aus'){allRates.add(r.mwst);const nm=(r.kund||'').split(',')[0].trim();allData.push({...r,art:'Ausgang',nm,netto:r.netto});}});
+  allData.sort((a,b)=>{const av=a.dat.split('.').reverse().join(''),bv=b.dat.split('.').reverse().join('');return av<bv?-1:av>bv?1:0;});
   const rows=allData.map(r=>{
     const zahl=r.zahl||(r.art==='Bar'?'Bar':'Bank');
     const row=[r.dat,zahl.charAt(0).toUpperCase()+zahl.slice(1),r.art,r.nm];
